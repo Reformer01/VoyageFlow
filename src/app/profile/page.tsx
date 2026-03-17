@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useUser, useAuth, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
@@ -76,7 +75,8 @@ export default function ProfilePage() {
       ...formData,
       id: user.uid,
       updatedAt: serverTimestamp(),
-      createdAt: profile?.createdAt || serverTimestamp()
+      createdAt: profile?.createdAt || serverTimestamp(),
+      email: user.email // Ensure email matches auth for security/consistency
     };
 
     setDoc(profileRef, updateData, { merge: true })
@@ -97,8 +97,8 @@ export default function ProfilePage() {
 
   if (isUserLoading || isProfileLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background-light dark:bg-background-dark">
-        <span className="material-symbols-outlined text-primary text-5xl animate-spin">refresh</span>
+      <div className="min-h-screen flex items-center justify-center bg-background-light dark:bg-background-dark text-primary">
+        <span className="material-symbols-outlined text-5xl animate-spin">refresh</span>
       </div>
     );
   }
@@ -111,7 +111,7 @@ export default function ProfilePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between gap-8">
             <Link href="/" className="flex items-center gap-2 text-primary">
-              <span className="material-symbols-outlined text-3xl font-bold">flight_takeoff</span>
+              <span className="material-symbols-outlined text-3xl font-bold">travel_explore</span>
               <h2 className="text-slate-900 dark:text-slate-100 text-xl font-bold tracking-tight uppercase">TravelEase</h2>
             </Link>
             <nav className="hidden md:flex items-center gap-6">
@@ -136,8 +136,10 @@ export default function ProfilePage() {
                 <div className="h-24 w-24 rounded-full overflow-hidden border-4 border-primary/10">
                   <Image width={96} height={96} alt={user.displayName || "User"} src={user.photoURL || "https://picsum.photos/seed/user/200/200"} />
                 </div>
-                <h3 className="mt-4 text-lg font-bold">{formData.firstName} {formData.lastName}</h3>
-                <p className="text-sm text-primary font-medium">Explorer</p>
+                <h3 className="mt-4 text-lg font-bold truncate max-w-full">
+                  {formData.firstName || formData.lastName ? `${formData.firstName} ${formData.lastName}` : (user.displayName || 'Explorer')}
+                </h3>
+                <p className="text-sm text-primary font-medium">Verified Account</p>
               </div>
               <nav className="space-y-1">
                 <Link href="/profile" className="flex items-center gap-3 px-4 py-3 rounded-xl bg-primary text-white font-medium">
@@ -169,6 +171,7 @@ export default function ProfilePage() {
                       value={formData.firstName} 
                       onChange={(e) => setFormData({...formData, firstName: e.target.value})}
                       placeholder="John"
+                      className="rounded-xl border-slate-200 dark:border-slate-700 h-11"
                     />
                   </div>
                   <div className="space-y-2">
@@ -177,6 +180,7 @@ export default function ProfilePage() {
                       value={formData.lastName} 
                       onChange={(e) => setFormData({...formData, lastName: e.target.value})}
                       placeholder="Doe"
+                      className="rounded-xl border-slate-200 dark:border-slate-700 h-11"
                     />
                   </div>
                   <div className="space-y-2">
@@ -187,6 +191,7 @@ export default function ProfilePage() {
                       placeholder="name@example.com"
                       type="email"
                       disabled
+                      className="rounded-xl border-slate-200 dark:border-slate-700 h-11 bg-slate-50 dark:bg-slate-800/50 cursor-not-allowed opacity-70"
                     />
                   </div>
                   <div className="space-y-2">
@@ -195,12 +200,18 @@ export default function ProfilePage() {
                       value={formData.phoneNumber} 
                       onChange={(e) => setFormData({...formData, phoneNumber: e.target.value})}
                       placeholder="+1 (555) 000-0000"
+                      className="rounded-xl border-slate-200 dark:border-slate-700 h-11"
                     />
                   </div>
                 </div>
-                <div className="flex justify-end">
-                  <Button disabled={saving} type="submit" className="px-8 font-bold rounded-xl h-11">
-                    {saving ? 'Saving...' : 'Save Changes'}
+                <div className="flex justify-end pt-4 border-t border-slate-100 dark:border-slate-800">
+                  <Button disabled={saving} type="submit" className="px-10 font-bold rounded-xl h-12 shadow-lg shadow-primary/20 hover:scale-[0.98] transition-all">
+                    {saving ? (
+                      <>
+                        <span className="material-symbols-outlined animate-spin mr-2">refresh</span>
+                        Saving...
+                      </>
+                    ) : 'Save Changes'}
                   </Button>
                 </div>
               </form>
