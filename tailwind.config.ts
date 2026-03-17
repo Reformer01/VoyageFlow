@@ -11,13 +11,16 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        body: ['Inter', 'sans-serif'],
-        headline: ['Inter', 'sans-serif'],
+        body: ['Public Sans', 'sans-serif'],
+        display: ['Public Sans', 'sans-serif'],
+        headline: ['Public Sans', 'sans-serif'],
         code: ['monospace'],
       },
       colors: {
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
+        "background-light": "#f8f6f6",
+        "background-dark": "#221610",
         card: {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
@@ -27,8 +30,8 @@ export default {
           foreground: 'hsl(var(--popover-foreground))',
         },
         primary: {
-          DEFAULT: 'hsl(var(--primary))',
-          foreground: 'hsl(var(--primary-foreground))',
+          DEFAULT: '#ec5b13',
+          foreground: '#ffffff',
         },
         secondary: {
           DEFAULT: 'hsl(var(--secondary))',
@@ -68,9 +71,11 @@ export default {
         },
       },
       borderRadius: {
-        lg: 'var(--radius)',
-        md: 'calc(var(--radius) - 2px)',
-        sm: 'calc(var(--radius) - 4px)',
+        lg: '0.5rem',
+        md: 'calc(0.5rem - 2px)',
+        sm: 'calc(0.5rem - 4px)',
+        xl: '0.75rem',
+        full: '9999px',
       },
       keyframes: {
         'accordion-down': {

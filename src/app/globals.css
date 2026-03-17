@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -23,11 +24,11 @@
     --border: 20 15% 85%;
     --input: 20 15% 85%;
     --ring: 19 85% 50%;
-    --radius: 0.75rem;
+    --radius: 0.5rem;
   }
 
   .dark {
-    --background: 20 36% 10%;
+    --background: 20 36% 6%;
     --foreground: 0 8% 97%;
     --card: 20 36% 12%;
     --card-foreground: 0 8% 97%;
@@ -54,7 +55,7 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground font-body antialiased;
+    @apply bg-background-light dark:bg-background-dark text-foreground font-display antialiased;
   }
 }
 
