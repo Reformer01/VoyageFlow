@@ -23,7 +23,7 @@ export default function MyBookingsPage() {
     if (!db || !user) return null;
     return query(
       collection(db, 'users', user.uid, 'bookings'),
-      orderBy('bookingDate', 'desc')
+      orderBy('createdAt', 'desc')
     );
   }, [db, user]);
 
@@ -48,10 +48,10 @@ export default function MyBookingsPage() {
             <h2 className="text-xl font-black leading-tight tracking-tight text-slate-900 dark:text-white uppercase">TravelEase</h2>
           </Link>
           <nav className="hidden md:flex items-center gap-8">
-            <Link className="text-slate-600 dark:text-slate-300 hover:text-primary text-sm font-semibold transition-colors" href="/">Home</Link>
-            <Link className="text-slate-600 dark:text-slate-300 hover:text-primary text-sm font-semibold transition-colors" href="/search">Search</Link>
+            <Link className="text-slate-600 dark:text-slate-400 hover:text-primary text-sm font-semibold transition-colors" href="/">Home</Link>
+            <Link className="text-slate-600 dark:text-slate-400 hover:text-primary text-sm font-semibold transition-colors" href="/search">Search</Link>
             <Link className="text-primary text-sm font-bold border-b-2 border-primary pb-1" href="/profile/bookings">My Bookings</Link>
-            <Link className="text-slate-600 dark:text-slate-300 hover:text-primary text-sm font-semibold transition-colors" href="/profile">Profile</Link>
+            <Link className="text-slate-600 dark:text-slate-400 hover:text-primary text-sm font-semibold transition-colors" href="/profile">Profile</Link>
           </nav>
         </div>
       </header>
@@ -79,10 +79,19 @@ export default function MyBookingsPage() {
             </div>
           ) : (
             bookings.map((booking) => (
-              <div key={booking.id} className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+              <Link 
+                key={booking.id} 
+                href={`/profile/bookings/${booking.id}`}
+                className="block bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-md hover:border-primary/30 transition-all group"
+              >
                 <div className="flex flex-col md:flex-row">
-                  <div className="md:w-48 h-40 relative">
-                    <Image fill src={booking.image || "https://picsum.photos/seed/travel/400/300"} alt={booking.location} className="object-cover" />
+                  <div className="md:w-48 h-40 relative overflow-hidden">
+                    <Image 
+                      fill 
+                      src={booking.image || "https://picsum.photos/seed/travel/400/300"} 
+                      alt={booking.location} 
+                      className="object-cover group-hover:scale-105 transition-transform duration-500" 
+                    />
                   </div>
                   <div className="flex-1 p-6 flex flex-col justify-between">
                     <div className="flex justify-between items-start mb-4">
@@ -99,24 +108,25 @@ export default function MyBookingsPage() {
                         </div>
                         <h4 className="text-2xl font-bold text-slate-900 dark:text-white">{booking.location}</h4>
                         <p className="text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-1">
-                          <span className="material-symbols-outlined text-sm">calendar_today</span>
-                          {new Date(booking.bookingDate).toLocaleDateString()}
+                          <span className="material-symbols-outlined text-sm text-primary">calendar_today</span>
+                          {booking.bookingDate ? new Date(booking.bookingDate).toLocaleDateString() : 'Date TBD'}
                         </p>
                       </div>
                       <div className="text-right">
                         <p className="text-sm text-slate-400">Total Price</p>
-                        <p className="text-xl font-black text-slate-900 dark:text-white">${booking.totalAmount.toFixed(2)}</p>
+                        <p className="text-xl font-black text-slate-900 dark:text-white">${booking.totalAmount?.toFixed(2) || '0.00'}</p>
                       </div>
                     </div>
                     <div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
-                      <p className="text-sm text-slate-500 font-medium">{booking.title}</p>
-                      <Link href={`/profile/bookings/${booking.id}`}>
-                        <button className="bg-primary hover:bg-primary/90 text-white px-6 py-2 rounded-lg font-bold transition-colors">View Details</button>
-                      </Link>
+                      <p className="text-sm text-slate-500 font-medium truncate max-w-[200px]">{booking.title}</p>
+                      <div className="flex items-center text-primary font-bold text-sm gap-1 group-hover:translate-x-1 transition-transform">
+                        View Details
+                        <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
+              </Link>
             ))
           )}
         </div>
