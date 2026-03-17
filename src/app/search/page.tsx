@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useSearchParams } from 'next/navigation';
@@ -8,7 +9,6 @@ import { useBasket, TravelService } from '@/context/basket-context';
 import { useToast } from '@/hooks/use-toast';
 import { useUser } from '@/firebase';
 
-// Mock data generator for results
 const getResults = (type: string | null): (TravelService & { 
   reviews: number; 
   badges: string[]; 
@@ -25,15 +25,19 @@ const getResults = (type: string | null): (TravelService & {
   return Array.from({ length: 6 }).map((_, i) => ({
     id: `search-${i}`,
     type: (type as any) || 'hotel',
-    title: i % 2 === 0 ? 'Azure Luxury Suites' : i % 3 === 0 ? 'Mystique Boutique Resort' : 'Caldera View Hotel',
+    title: type === 'flight' 
+      ? (i % 2 === 0 ? 'Lufthansa Economy' : 'Qatar Airways Business')
+      : (i % 2 === 0 ? 'Azure Luxury Suites' : i % 3 === 0 ? 'Mystique Boutique Resort' : 'Caldera View Hotel'),
     provider: 'TravelEase Preferred',
-    price: Math.floor(Math.random() * 300) + 200,
+    price: type === 'flight' ? Math.floor(Math.random() * 400) + 500 : Math.floor(Math.random() * 300) + 200,
     rating: Number((Math.random() * 0.5 + 4.5).toFixed(1)),
-    image: `https://picsum.photos/seed/search-${i}/800/600`,
+    image: type === 'flight' 
+      ? `https://picsum.photos/seed/flight-${i}/800/600`
+      : `https://picsum.photos/seed/hotel-${i}/800/600`,
     location: locations[i % locations.length].main,
     subLocation: locations[i % locations.length].sub,
     reviews: Math.floor(Math.random() * 1000) + 400,
-    badges: ['Free Cancellation', 'Breakfast Included', 'Ocean View'],
+    badges: ['Free Cancellation', 'Instant Confirmation', 'TravelEase Choice'],
     availability: 'Live Availability',
     leftCount: i % 2 === 0 ? 2 : 5
   }));
@@ -46,7 +50,6 @@ export default function SearchPage() {
   const { addToBasket } = useBasket();
   const { toast } = useToast();
   const { user } = useUser();
-  const [priceRange, setPriceRange] = useState([120, 850]);
 
   const results = useMemo(() => getResults(type), [type]);
 
@@ -72,21 +75,21 @@ export default function SearchPage() {
                 <div className="flex items-center justify-center pl-3 text-slate-500">
                   <span className="material-symbols-outlined">search</span>
                 </div>
-                <input className="w-full border-none bg-transparent focus:ring-0 text-sm placeholder:text-slate-500" placeholder="Where to next?" defaultValue={locationParam} />
+                <input className="w-full border-none bg-transparent focus:ring-0 text-sm placeholder:text-slate-400" placeholder="Where to next?" defaultValue={locationParam} />
               </div>
             </div>
           </div>
           <div className="flex items-center gap-6">
             <nav className="hidden lg:flex items-center gap-8">
-              <Link className={`text-sm font-semibold transition-colors ${type === 'hotel' ? 'text-primary' : 'hover:text-primary'}`} href="/search?type=hotel">Hotels</Link>
-              <Link className={`text-sm font-semibold transition-colors ${type === 'flight' ? 'text-primary' : 'hover:text-primary'}`} href="/search?type=flight">Flights</Link>
-              <Link className="text-sm font-semibold hover:text-primary transition-colors" href={user ? "/profile/bookings" : "/auth/login"}>Trips</Link>
-              <Link className="text-sm font-semibold hover:text-primary transition-colors" href="/search?type=deal">Deals</Link>
+              <Link className={`text-sm font-semibold transition-colors ${type === 'hotel' ? 'text-primary' : 'hover:text-primary text-slate-600 dark:text-slate-300'}`} href="/search?type=hotel">Hotels</Link>
+              <Link className={`text-sm font-semibold transition-colors ${type === 'flight' ? 'text-primary' : 'hover:text-primary text-slate-600 dark:text-slate-300'}`} href="/search?type=flight">Flights</Link>
+              <Link className="text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-primary transition-colors" href={user ? "/profile/bookings" : "/auth/login"}>Trips</Link>
+              <Link className={`text-sm font-semibold transition-colors ${type === 'deal' ? 'text-primary' : 'hover:text-primary text-slate-600 dark:text-slate-300'}`} href="/search?type=deal">Deals</Link>
             </nav>
             <div className="flex gap-3">
-              <button className="flex items-center justify-center rounded-xl size-10 bg-slate-200/50 dark:bg-primary/10 hover:bg-primary/20 transition-colors">
-                <span className="material-symbols-outlined text-slate-700 dark:text-slate-200">notifications</span>
-              </button>
+              <Link href="/basket" className="relative flex items-center justify-center rounded-xl size-10 bg-slate-200/50 dark:bg-primary/10 hover:bg-primary/20 transition-colors">
+                <span className="material-symbols-outlined text-slate-700 dark:text-slate-200">shopping_basket</span>
+              </Link>
               <Link href={user ? "/profile" : "/auth/login"}>
                 <button className="flex items-center justify-center rounded-xl size-10 bg-slate-200/50 dark:bg-primary/10 hover:bg-primary/20 transition-colors">
                   <span className="material-symbols-outlined text-slate-700 dark:text-slate-200">account_circle</span>
@@ -112,8 +115,8 @@ export default function SearchPage() {
                     <div className="absolute h-1.5 w-2/3 rounded-full bg-primary left-[15%]"></div>
                   </div>
                   <div className="mt-4 flex justify-between text-xs font-medium">
-                    <span>${priceRange[0]}</span>
-                    <span>${priceRange[1]}+</span>
+                    <span>$120</span>
+                    <span>$850+</span>
                   </div>
                 </div>
               </div>
@@ -130,17 +133,6 @@ export default function SearchPage() {
                   ))}
                 </div>
               </div>
-              <div className="space-y-4 border-t border-primary/10 pt-6">
-                <h4 className="text-sm font-bold uppercase tracking-wider text-slate-500">Amenities</h4>
-                <div className="flex flex-col gap-3">
-                  {['Free WiFi', 'Infinity Pool', 'Spa & Wellness', 'Airport Shuttle'].map((amenity, i) => (
-                    <label key={amenity} className="flex cursor-pointer items-center gap-3">
-                      <input type="checkbox" className="rounded border-slate-300 text-primary focus:ring-primary h-5 w-5 bg-transparent" defaultChecked={i === 1} />
-                      <span className="text-sm font-medium">{amenity}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
               <div className="pt-4">
                 <button className="w-full rounded-xl bg-primary py-3 text-sm font-bold text-white hover:bg-primary/90 transition-all shadow-lg shadow-primary/20">
                   Apply Filters
@@ -148,20 +140,12 @@ export default function SearchPage() {
               </div>
             </div>
           </div>
-          <div className="relative overflow-hidden rounded-xl h-48 bg-slate-200 group">
-            <div className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" style={{ backgroundImage: "url('https://picsum.photos/seed/map/400/300')" }}></div>
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-4">
-              <button className="w-full rounded-lg bg-white/20 backdrop-blur-md py-2 text-xs font-bold text-white border border-white/30 hover:bg-white/30 transition-all">
-                View on Map
-              </button>
-            </div>
-          </div>
         </aside>
 
         <section className="flex flex-1 flex-col gap-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-sm">
-              <Link className="text-slate-500 hover:text-primary transition-colors" href="/">Home</Link>
+              <Link href="/" className="text-slate-500 hover:text-primary transition-colors">Home</Link>
               <span className="material-symbols-outlined text-xs">chevron_right</span>
               <span className="text-slate-500">Search</span>
               <span className="material-symbols-outlined text-xs">chevron_right</span>
@@ -182,10 +166,13 @@ export default function SearchPage() {
             {results.map((service) => (
               <div key={service.id} className="group flex flex-col overflow-hidden rounded-xl border border-primary/10 bg-white dark:bg-primary/5 transition-all hover:shadow-xl hover:shadow-primary/5 sm:flex-row">
                 <div className="relative h-64 w-full sm:h-auto sm:w-80 shrink-0 overflow-hidden">
-                  <div 
-                    className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110" 
-                    style={{ backgroundImage: `url('${service.image}')` }}
-                  ></div>
+                  <Image 
+                    src={service.image} 
+                    alt={service.title} 
+                    fill 
+                    className="object-cover transition-transform duration-500 group-hover:scale-110"
+                    data-ai-hint="travel destination"
+                  />
                   <div className="absolute left-4 top-4 rounded-full bg-green-500/90 backdrop-blur-sm px-3 py-1 text-[10px] font-bold text-white flex items-center gap-1 uppercase tracking-wider">
                     <span className="size-1.5 rounded-full bg-white animate-pulse"></span>
                     {service.availability}
@@ -230,12 +217,12 @@ export default function SearchPage() {
                       )}
                       <div className="flex items-baseline gap-1 mt-1">
                         <span className="text-2xl font-black text-slate-900 dark:text-white">${service.price}</span>
-                        <span className="text-xs text-slate-500">/ night</span>
+                        <span className="text-xs text-slate-500">/ {type === 'flight' ? 'person' : 'night'}</span>
                       </div>
                     </div>
                     <button 
                       onClick={() => handleBookNow(service)}
-                      className="rounded-xl bg-primary px-8 py-3 text-sm font-bold text-white hover:bg-primary/90 transition-all border-none h-11"
+                      className="rounded-xl bg-primary px-8 py-3 text-sm font-bold text-white hover:bg-primary/90 transition-all h-11"
                     >
                       Book Now
                     </button>
@@ -244,73 +231,8 @@ export default function SearchPage() {
               </div>
             ))}
           </div>
-
-          <div className="mt-8 flex justify-center">
-            <nav className="flex items-center gap-2">
-              <button className="flex size-10 items-center justify-center rounded-lg border border-primary/10 bg-white dark:bg-primary/5 hover:bg-primary/10">
-                <span className="material-symbols-outlined">chevron_left</span>
-              </button>
-              <button className="flex size-10 items-center justify-center rounded-lg bg-primary font-bold text-white">1</button>
-              <button className="flex size-10 items-center justify-center rounded-lg border border-primary/10 bg-white dark:bg-primary/5 hover:bg-primary/10">2</button>
-              <button className="flex size-10 items-center justify-center rounded-lg border border-primary/10 bg-white dark:bg-primary/5 hover:bg-primary/10">3</button>
-              <span className="px-2">...</span>
-              <button className="flex size-10 items-center justify-center rounded-lg border border-primary/10 bg-white dark:bg-primary/5 hover:bg-primary/10">12</button>
-              <button className="flex size-10 items-center justify-center rounded-lg border border-primary/10 bg-white dark:bg-primary/5 hover:bg-primary/10">
-                <span className="material-symbols-outlined">chevron_right</span>
-              </button>
-            </nav>
-          </div>
         </section>
       </main>
-
-      <footer className="border-t border-primary/10 bg-white dark:bg-background-dark py-12 px-6 lg:px-20">
-        <div className="mx-auto max-w-7xl">
-          <div className="grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="flex flex-col gap-4">
-              <div className="flex items-center gap-2 text-primary">
-                <span className="material-symbols-outlined text-2xl font-bold">flight_takeoff</span>
-                <h2 className="text-lg font-bold text-slate-900 dark:text-white uppercase tracking-tighter">TravelEase</h2>
-              </div>
-              <p className="text-sm text-slate-500">Making travel planning smarter, faster, and more accessible for everyone.</p>
-              <div className="flex gap-4">
-                <Link className="text-slate-400 hover:text-primary transition-colors" href="#"><span className="material-symbols-outlined">public</span></Link>
-                <Link className="text-slate-400 hover:text-primary transition-colors" href="#"><span className="material-symbols-outlined">share</span></Link>
-                <Link className="text-slate-400 hover:text-primary transition-colors" href="#"><span className="material-symbols-outlined">chat</span></Link>
-              </div>
-            </div>
-            <div>
-              <h4 className="mb-6 text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-slate-100">Destinations</h4>
-              <ul className="flex flex-col gap-3 text-sm text-slate-500">
-                <li><Link className="hover:text-primary" href="#">Europe</Link></li>
-                <li><Link className="hover:text-primary" href="#">North America</Link></li>
-                <li><Link className="hover:text-primary" href="#">Asia Pacific</Link></li>
-                <li><Link className="hover:text-primary" href="#">Middle East</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="mb-6 text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-slate-100">Company</h4>
-              <ul className="flex flex-col gap-3 text-sm text-slate-500">
-                <li><Link className="hover:text-primary" href="#">About Us</Link></li>
-                <li><Link className="hover:text-primary" href="#">Careers</Link></li>
-                <li><Link className="hover:text-primary" href="#">Mobile App</Link></li>
-                <li><Link className="hover:text-primary" href="#">Press</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="mb-6 text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-slate-100">Support</h4>
-              <ul className="flex flex-col gap-3 text-sm text-slate-500">
-                <li><Link className="hover:text-primary" href="#">Help Center</Link></li>
-                <li><Link className="hover:text-primary" href="#">Privacy Policy</Link></li>
-                <li><Link className="hover:text-primary" href="#">Terms of Service</Link></li>
-                <li><Link className="hover:text-primary" href="#">Cookie Policy</Link></li>
-              </ul>
-            </div>
-          </div>
-          <div className="mt-12 border-t border-primary/10 pt-8 text-center text-xs text-slate-500">
-            © 2024 TravelEase Inc. All rights reserved.
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

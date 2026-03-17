@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from 'next/link';
@@ -27,8 +28,8 @@ export default function BasketPage() {
               <span className="text-xl font-bold tracking-tight text-slate-900 dark:text-white uppercase">TravelEase</span>
             </Link>
             <div className="hidden md:flex items-center gap-8">
-              <Link className="text-sm font-semibold hover:text-primary transition-colors" href="/">Home</Link>
-              <Link className="text-sm font-semibold hover:text-primary transition-colors" href={user ? "/profile/bookings" : "/auth/login"}>My Trips</Link>
+              <Link className="text-sm font-semibold hover:text-primary transition-colors text-slate-600 dark:text-slate-300" href="/">Home</Link>
+              <Link className="text-sm font-semibold hover:text-primary transition-colors text-slate-600 dark:text-slate-300" href={user ? "/profile/bookings" : "/auth/login"}>My Trips</Link>
               <Link className="text-sm font-semibold text-primary" href="/basket">Basket</Link>
             </div>
             <div className="flex items-center gap-4">
@@ -104,7 +105,7 @@ export default function BasketPage() {
                               </div>
                               <div className="flex items-center gap-1">
                                 <span className="material-symbols-outlined text-sm">airline_seat_recline_extra</span>
-                                {flight.provider}
+                                {flight.title}
                               </div>
                             </div>
                           </div>
@@ -153,12 +154,6 @@ export default function BasketPage() {
                               <span className="material-symbols-outlined text-sm">location_on</span>
                               {hotel.location || 'Manhattan, New York'}
                             </p>
-                            <div className="flex gap-4 pt-2 text-sm text-slate-600 dark:text-slate-400">
-                              <div className="flex flex-col">
-                                <span className="text-[10px] uppercase font-bold text-slate-400">Provider</span>
-                                <span>{hotel.provider}</span>
-                              </div>
-                            </div>
                           </div>
                           <div className="flex flex-col items-end justify-between border-l border-slate-100 dark:border-slate-800 pl-6">
                             <div className="text-right">
@@ -215,109 +210,11 @@ export default function BasketPage() {
                     Save for Later
                   </button>
                 </div>
-                <div className="mt-6 pt-6 border-t border-slate-100 dark:border-slate-800">
-                  <div className="flex items-center gap-3 mb-4">
-                    <span className="material-symbols-outlined text-green-500">lock</span>
-                    <span className="text-xs font-semibold text-slate-500 uppercase tracking-widest">Secure Checkout</span>
-                  </div>
-                  <div className="flex gap-2">
-                    <div className="h-8 w-12 bg-slate-100 dark:bg-slate-800 rounded flex items-center justify-center">
-                      <span className="material-symbols-outlined text-slate-400">credit_card</span>
-                    </div>
-                    <div className="h-8 w-12 bg-slate-100 dark:bg-slate-800 rounded flex items-center justify-center">
-                      <span className="material-symbols-outlined text-slate-400">account_balance</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="bg-primary/10 rounded-xl p-6 border border-primary/10">
-                <h4 className="font-bold text-primary mb-2 flex items-center gap-2">
-                  <span className="material-symbols-outlined">redeem</span>
-                  Membership Perks
-                </h4>
-                <p className="text-sm text-slate-600 dark:text-slate-400">As a Premium Member, you're earning <strong className="text-slate-900 dark:text-white">{Math.floor(totalPrice)} points</strong> on this trip!</p>
               </div>
             </div>
           </div>
         )}
-
-        <section className="mt-16">
-          <h2 className="text-2xl font-bold mb-6">Recently Viewed</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="group cursor-pointer">
-              <div className="aspect-[4/3] relative rounded-xl overflow-hidden mb-3">
-                <Image fill alt="Cottage" className="object-cover group-hover:scale-105 transition-transform duration-300" src="https://picsum.photos/seed/aspen/400/300" />
-              </div>
-              <h4 className="font-bold group-hover:text-primary transition-colors">Mountain Retreat Cabin</h4>
-              <p className="text-sm text-slate-500">Aspen, Colorado</p>
-            </div>
-            <div className="group cursor-pointer">
-              <div className="aspect-[4/3] relative rounded-xl overflow-hidden mb-3">
-                <Image fill alt="Beach" className="object-cover group-hover:scale-105 transition-transform duration-300" src="https://picsum.photos/seed/maldives/400/300" />
-              </div>
-              <h4 className="font-bold group-hover:text-primary transition-colors">Blue Lagoon Resort</h4>
-              <p className="text-sm text-slate-500">Maldives</p>
-            </div>
-            <div className="group cursor-pointer">
-              <div className="aspect-[4/3] relative rounded-xl overflow-hidden mb-3">
-                <Image fill alt="City" className="object-cover group-hover:scale-105 transition-transform duration-300" src="https://picsum.photos/seed/tokyo/400/300" />
-              </div>
-              <h4 className="font-bold group-hover:text-primary transition-colors">Shinjuku Luxury Suite</h4>
-              <p className="text-sm text-slate-500">Tokyo, Japan</p>
-            </div>
-            <div className="group cursor-pointer">
-              <div className="aspect-[4/3] relative rounded-xl overflow-hidden mb-3">
-                <Image fill alt="Paris" className="object-cover group-hover:scale-105 transition-transform duration-300" src="https://picsum.photos/seed/paris/400/300" />
-              </div>
-              <h4 className="font-bold group-hover:text-primary transition-colors">Le Marais Boutique</h4>
-              <p className="text-sm text-slate-500">Paris, France</p>
-            </div>
-          </div>
-        </section>
       </main>
-      <footer className="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 mt-20 py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
-            <div className="col-span-2 md:col-span-1">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="bg-primary p-1 rounded text-white">
-                  <span className="material-symbols-outlined block text-lg">flight_takeoff</span>
-                </div>
-                <span className="text-lg font-bold tracking-tight uppercase">TravelEase</span>
-              </div>
-              <p className="text-sm text-slate-500">Making travel simple, smart, and accessible for everyone.</p>
-            </div>
-            {/* Standard Footer Links */}
-            <div>
-              <h5 className="font-bold mb-4">Support</h5>
-              <ul className="space-y-2 text-sm text-slate-500">
-                <li><Link className="hover:text-primary" href="#">Help Center</Link></li>
-                <li><Link className="hover:text-primary" href="#">Safety Info</Link></li>
-                <li><Link className="hover:text-primary" href="#">Cancellation Options</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h5 className="font-bold mb-4">Company</h5>
-              <ul className="space-y-2 text-sm text-slate-500">
-                <li><Link className="hover:text-primary" href="#">About Us</Link></li>
-                <li><Link className="hover:text-primary" href="#">Careers</Link></li>
-                <li><Link className="hover:text-primary" href="#">Press</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h5 className="font-bold mb-4">Legal</h5>
-              <ul className="space-y-2 text-sm text-slate-500">
-                <li><Link className="hover:text-primary" href="#">Terms of Service</Link></li>
-                <li><Link className="hover:text-primary" href="#">Privacy Policy</Link></li>
-                <li><Link className="hover:text-primary" href="#">Cookie Settings</Link></li>
-              </ul>
-            </div>
-          </div>
-          <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-slate-100 dark:border-slate-800 gap-4">
-            <p className="text-xs text-slate-500">© 2024 TravelEase Inc. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from 'react';
@@ -52,7 +53,6 @@ export default function CheckoutPage() {
 
   return (
     <div className="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 antialiased font-display min-h-screen">
-      {/* Top Navigation Bar */}
       <header className="sticky top-0 z-50 w-full border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
@@ -79,7 +79,6 @@ export default function CheckoutPage() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Breadcrumbs */}
         <nav className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-8">
           <Link className="hover:text-primary" href="/search">Search Results</Link>
           <span className="material-symbols-outlined text-xs">chevron_right</span>
@@ -89,16 +88,13 @@ export default function CheckoutPage() {
         </nav>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* Left Column: Forms */}
           <div className="lg:col-span-8 space-y-8">
-            {/* Page Heading */}
             <div className="flex flex-col gap-1">
               <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white">Checkout</h1>
               <p className="text-slate-500 dark:text-slate-400">Complete your booking by providing the required details below.</p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-8">
-              {/* Passenger Details Section */}
               <section className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
                 <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center gap-3">
                   <span className="material-symbols-outlined text-primary">groups</span>
@@ -128,7 +124,6 @@ export default function CheckoutPage() {
                 </div>
               </section>
 
-              {/* Payment Processing Section */}
               <section className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
                 <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -234,32 +229,10 @@ export default function CheckoutPage() {
                   </div>
                 </div>
               </div>
-              {/* Trust Indicators */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="p-3 bg-green-500/5 border border-green-500/20 rounded-lg flex flex-col items-center text-center">
-                  <span className="material-symbols-outlined text-green-500 mb-1">verified</span>
-                  <p className="text-[10px] font-bold uppercase tracking-tighter text-green-700 dark:text-green-400">Secure Payment</p>
-                </div>
-                <div className="p-3 bg-blue-500/5 border border-blue-500/20 rounded-lg flex flex-col items-center text-center">
-                  <span className="material-symbols-outlined text-blue-500 mb-1">support_agent</span>
-                  <p className="text-[10px] font-bold uppercase tracking-tighter text-blue-700 dark:text-blue-400">24/7 Support</p>
-                </div>
-              </div>
             </div>
           </div>
         </div>
       </main>
-
-      <footer className="mt-20 border-t border-slate-200 dark:border-slate-800 py-10">
-        <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-6">
-          <p className="text-sm text-slate-500 dark:text-slate-400">© 2024 TravelEase. All rights reserved.</p>
-          <div className="flex gap-8 text-sm text-slate-500 dark:text-slate-400">
-            <Link className="hover:text-primary" href="#">Terms of Service</Link>
-            <Link className="hover:text-primary" href="#">Privacy Policy</Link>
-            <Link className="hover:text-primary" href="#">Refund Policy</Link>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }
