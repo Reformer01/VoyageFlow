@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useUser } from '@/firebase';
@@ -102,7 +101,7 @@ export default function MyBookingsPage() {
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Total Paid</p>
+                    <p className="text-xs font-bold text-slate-400 dark:text-slate-50 uppercase tracking-widest">Total Paid</p>
                     <p className="text-2xl font-black text-primary">$1,840.00</p>
                   </div>
                 </div>
@@ -118,9 +117,11 @@ export default function MyBookingsPage() {
                       <span className="text-sm font-bold">Azure Resort & Spa</span>
                     </div>
                   </div>
-                  <Button className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-white px-8 h-12 rounded-xl font-black shadow-lg shadow-primary/20 transition-all">
-                    View Details
-                  </Button>
+                  <Link href="/profile/bookings/TE-88291">
+                    <Button className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-white px-8 h-12 rounded-xl font-black shadow-lg shadow-primary/20 transition-all">
+                      View Details
+                    </Button>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -153,7 +154,7 @@ export default function MyBookingsPage() {
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Total Price</p>
+                    <p className="text-xs font-bold text-slate-400 dark:text-slate-50 uppercase tracking-widest">Total Price</p>
                     <p className="text-2xl font-black text-slate-900 dark:text-white">$2,100.00</p>
                   </div>
                 </div>
