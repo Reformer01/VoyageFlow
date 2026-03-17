@@ -60,7 +60,7 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 md:p-8 bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 antialiased">
+    <div className="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen flex items-center justify-center p-4 md:p-8">
       <div className="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-2 overflow-hidden rounded-xl shadow-2xl bg-white dark:bg-slate-900 min-h-[700px]">
         {/* Left Pane: Branding & Inspiration */}
         <div className="relative hidden lg:flex flex-col justify-between p-12 text-white overflow-hidden">
