@@ -2,7 +2,7 @@
 "use client";
 
 import Link from 'next/link';
-import { Plane, ShoppingBasket, User, Menu } from 'lucide-react';
+import { ShoppingBasket, User, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useBasket } from '@/context/basket-context';
 import { Badge } from '@/components/ui/badge';
@@ -25,9 +25,9 @@ export function Navbar() {
         </Link>
 
         <nav className="hidden md:flex items-center gap-8">
-          <Link href="/search?type=flight" className="text-sm font-semibold hover:text-primary transition-colors">Discover</Link>
-          <Link href={user ? "/profile/bookings" : "/auth/login"} className="text-sm font-semibold hover:text-primary transition-colors">Trips</Link>
-          <Link href="#" className="text-sm font-semibold hover:text-primary transition-colors">Support</Link>
+          <Link href="/search?type=flight" className="text-sm font-semibold hover:text-primary transition-colors text-slate-600 dark:text-slate-300">Discover</Link>
+          <Link href={user ? "/profile/bookings" : "/auth/login"} className="text-sm font-semibold hover:text-primary transition-colors text-slate-600 dark:text-slate-300">Trips</Link>
+          <Link href="#" className="text-sm font-semibold hover:text-primary transition-colors text-slate-600 dark:text-slate-300">Support</Link>
         </nav>
 
         <div className="flex items-center gap-3">

@@ -4,32 +4,11 @@
 import { useSearchParams } from 'next/navigation';
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
-import { 
-  Star, 
-  MapPin, 
-  ChevronRight, 
-  Search, 
-  Notifications, 
-  AccountCircle, 
-  PriorityHigh,
-  ChevronLeft,
-  Public,
-  Share,
-  Chat
-} from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from '@/components/ui/select';
-import { Slider } from '@/components/ui/slider';
 import { useBasket, TravelService } from '@/context/basket-context';
 import { useToast } from '@/hooks/use-toast';
+import { Navbar } from '@/components/layout/navbar';
 
 // Mock data generator for results
 const getResults = (type: string | null): (TravelService & { 
@@ -81,46 +60,7 @@ export default function SearchPage() {
 
   return (
     <div className="relative flex min-h-screen flex-col overflow-x-hidden font-display bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 transition-colors duration-200">
-      <header className="sticky top-0 z-50 w-full border-b border-primary/10 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md px-6 lg:px-20 py-3">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-8">
-          <div className="flex items-center gap-8">
-            <Link href="/" className="flex items-center gap-2 text-primary">
-              <span className="material-symbols-outlined text-3xl">flight_takeoff</span>
-              <h2 className="text-xl font-bold leading-tight tracking-tight text-slate-900 dark:text-slate-100 uppercase">TravelEase</h2>
-            </Link>
-            <div className="hidden md:flex flex-col min-w-64">
-              <div className="flex w-full items-stretch rounded-xl h-10 overflow-hidden bg-slate-200/50 dark:bg-primary/10 border border-slate-300 dark:border-primary/20">
-                <div className="flex items-center justify-center pl-3 text-slate-500">
-                  <span className="material-symbols-outlined">search</span>
-                </div>
-                <input 
-                  className="w-full border-none bg-transparent focus:ring-0 text-sm placeholder:text-slate-500" 
-                  placeholder="Where to next?" 
-                  defaultValue="Santorini, Greece"
-                />
-              </div>
-            </div>
-          </div>
-          <div className="flex items-center gap-6">
-            <nav className="hidden lg:flex items-center gap-8">
-              <Link className={`text-sm font-semibold transition-colors ${type === 'hotel' ? 'text-primary' : 'hover:text-primary'}`} href="/search?type=hotel">Hotels</Link>
-              <Link className={`text-sm font-semibold transition-colors ${type === 'flight' ? 'text-primary' : 'hover:text-primary'}`} href="/search?type=flight">Flights</Link>
-              <Link className="text-sm font-semibold hover:text-primary transition-colors" href="#">Trips</Link>
-              <Link className="text-sm font-semibold hover:text-primary transition-colors" href="#">Deals</Link>
-            </nav>
-            <div className="flex gap-3">
-              <button className="flex items-center justify-center rounded-xl size-10 bg-slate-200/50 dark:bg-primary/10 hover:bg-primary/20 transition-colors">
-                <span className="material-symbols-outlined text-slate-700 dark:text-slate-200">notifications</span>
-              </button>
-              <Link href="/auth/login">
-                <button className="flex items-center justify-center rounded-xl size-10 bg-slate-200/50 dark:bg-primary/10 hover:bg-primary/20 transition-colors">
-                  <span className="material-symbols-outlined text-slate-700 dark:text-slate-200">account_circle</span>
-                </button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </header>
+      <Navbar />
 
       <main className="mx-auto flex w-full max-w-7xl flex-1 gap-8 px-6 lg:px-20 py-8">
         <aside className="hidden w-72 shrink-0 flex-col gap-8 lg:flex">
@@ -132,13 +72,10 @@ export default function SearchPage() {
             <div className="space-y-6">
               <div className="space-y-4">
                 <h4 className="text-sm font-bold uppercase tracking-wider text-slate-500">Price Range</h4>
-                <div className="pt-2">
-                  <Slider 
-                    defaultValue={[priceRange[0], priceRange[1]]} 
-                    max={1000} 
-                    step={10} 
-                    onValueChange={(val) => setPriceRange(val)}
-                  />
+                <div className="relative pt-2">
+                  <div className="h-1.5 w-full rounded-full bg-slate-200 dark:bg-slate-700">
+                    <div className="absolute h-1.5 w-2/3 rounded-full bg-primary left-[15%]"></div>
+                  </div>
                   <div className="mt-4 flex justify-between text-xs font-medium">
                     <span>${priceRange[0]}</span>
                     <span>${priceRange[1]}+</span>
@@ -150,9 +87,9 @@ export default function SearchPage() {
                 <div className="flex flex-col gap-3">
                   {[5, 4, 3].map((star) => (
                     <label key={star} className="flex cursor-pointer items-center gap-3">
-                      <Checkbox className="border-slate-300 text-primary" defaultChecked={star >= 4} />
+                      <Checkbox className="border-slate-300 text-primary h-5 w-5" defaultChecked={star >= 4} />
                       <span className="flex items-center gap-1 text-sm font-medium">
-                        {star} <span className="material-symbols-outlined text-primary text-sm">star</span> Stars
+                        {star} <span className="material-symbols-outlined text-primary text-sm FILL-1">star</span> Stars
                       </span>
                     </label>
                   ))}
@@ -163,14 +100,14 @@ export default function SearchPage() {
                 <div className="flex flex-col gap-3">
                   {['Free WiFi', 'Infinity Pool', 'Spa & Wellness', 'Airport Shuttle'].map((amenity, i) => (
                     <label key={amenity} className="flex cursor-pointer items-center gap-3">
-                      <Checkbox className="border-slate-300 text-primary" defaultChecked={i === 1} />
+                      <Checkbox className="border-slate-300 text-primary h-5 w-5" defaultChecked={i === 1} />
                       <span className="text-sm font-medium">{amenity}</span>
                     </label>
                   ))}
                 </div>
               </div>
               <div className="pt-4">
-                <Button className="w-full rounded-xl bg-primary font-bold text-white hover:bg-primary/90 transition-all shadow-lg shadow-primary/20">
+                <Button className="w-full rounded-xl bg-primary font-bold text-white hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 h-12">
                   Apply Filters
                 </Button>
               </div>
@@ -189,25 +126,20 @@ export default function SearchPage() {
         <section className="flex flex-1 flex-col gap-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-sm">
-              <span className="text-slate-500">Home</span>
+              <Link className="text-slate-500 hover:text-primary transition-colors" href="/">Home</Link>
               <span className="material-symbols-outlined text-xs">chevron_right</span>
-              <span className="text-slate-500">Greece</span>
+              <span className="text-slate-500">Search</span>
               <span className="material-symbols-outlined text-xs">chevron_right</span>
-              <span className="font-semibold">Santorini</span>
+              <span className="font-semibold">{type.charAt(0).toUpperCase() + type.slice(1)}s</span>
             </div>
             <div className="flex items-center gap-3">
               <span className="text-sm text-slate-500 font-medium">Sort by:</span>
-              <Select defaultValue="best">
-                <SelectTrigger className="w-[180px] rounded-lg border-primary/10 bg-white dark:bg-primary/5 text-sm font-semibold">
-                  <SelectValue placeholder="Sort by" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="best">Best Value</SelectItem>
-                  <SelectItem value="price-low">Price (Low to High)</SelectItem>
-                  <SelectItem value="rating">Star Rating</SelectItem>
-                  <SelectItem value="reviews">Guest Reviews</SelectItem>
-                </SelectContent>
-              </Select>
+              <select className="rounded-lg border-primary/10 bg-white dark:bg-primary/5 py-1.5 pl-3 pr-8 text-sm font-semibold focus:ring-primary outline-none">
+                <option>Best Value</option>
+                <option>Price (Low to High)</option>
+                <option>Star Rating</option>
+                <option>Guest Reviews</option>
+              </select>
             </div>
           </div>
 
@@ -233,7 +165,7 @@ export default function SearchPage() {
                             <span key={i} className={`material-symbols-outlined text-sm ${i < Math.floor(service.rating) ? 'FILL-1' : ''}`}>star</span>
                           ))}
                         </div>
-                        <h3 className="mt-1 text-xl font-bold">{service.title}</h3>
+                        <h3 className="mt-1 text-xl font-bold text-slate-900 dark:text-white">{service.title}</h3>
                         <div className="mt-1 flex items-center gap-1 text-sm text-slate-500">
                           <span className="material-symbols-outlined text-sm">location_on</span>
                           {service.subLocation}
@@ -262,13 +194,13 @@ export default function SearchPage() {
                         </p>
                       )}
                       <div className="flex items-baseline gap-1 mt-1">
-                        <span className="text-2xl font-black">${service.price}</span>
+                        <span className="text-2xl font-black text-slate-900 dark:text-white">${service.price}</span>
                         <span className="text-xs text-slate-500">/ night</span>
                       </div>
                     </div>
                     <Button 
                       onClick={() => handleBookNow(service)}
-                      className="rounded-xl bg-primary px-8 py-3 text-sm font-bold text-white hover:bg-primary/90 transition-all border-none"
+                      className="rounded-xl bg-primary px-8 py-3 text-sm font-bold text-white hover:bg-primary/90 transition-all border-none h-11"
                     >
                       Book Now
                     </Button>
@@ -302,7 +234,7 @@ export default function SearchPage() {
             <div className="flex flex-col gap-4">
               <div className="flex items-center gap-2 text-primary">
                 <span className="material-symbols-outlined text-2xl">flight_takeoff</span>
-                <h2 className="text-lg font-bold">TravelEase</h2>
+                <h2 className="text-lg font-bold text-slate-900 dark:text-white uppercase tracking-tighter">Travel<span className="text-primary">Ease</span></h2>
               </div>
               <p className="text-sm text-slate-500">Making travel planning smarter, faster, and more accessible for everyone.</p>
               <div className="flex gap-4">

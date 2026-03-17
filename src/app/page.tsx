@@ -1,33 +1,26 @@
 
+"use client";
+
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { Navbar } from '@/components/layout/navbar';
 
 export default function Home() {
+  const router = useRouter();
+  const [destination, setDestination] = useState('');
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const query = destination ? `?location=${encodeURIComponent(destination)}` : '';
+    router.push(`/search${query}`);
+  };
+
   return (
     <div className="relative flex min-h-screen w-full flex-col overflow-x-hidden">
       <div className="layout-container flex h-full grow flex-col">
-        {/* Navigation Bar */}
-        <header className="flex items-center justify-between whitespace-nowrap border-b border-slate-200 dark:border-slate-800 px-6 py-4 lg:px-20">
-          <div className="flex items-center gap-2 text-primary">
-            <span className="material-symbols-outlined text-3xl font-bold">flight_takeoff</span>
-            <h2 className="text-slate-900 dark:text-slate-100 text-xl font-black leading-tight tracking-tight">TravelEase</h2>
-          </div>
-          <nav className="hidden md:flex items-center gap-8">
-            <Link className="text-sm font-semibold hover:text-primary transition-colors" href="/search?type=flight">Discover</Link>
-            <Link className="text-sm font-semibold hover:text-primary transition-colors" href="/search?type=hotel">Trips</Link>
-            <Link className="text-sm font-semibold hover:text-primary transition-colors" href="/search?type=activity">Support</Link>
-          </nav>
-          <div className="flex gap-3">
-            <Link href="/auth/login">
-              <button className="flex items-center justify-center rounded-xl h-10 w-10 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-primary/20 transition-colors">
-                <span className="material-symbols-outlined text-[20px]">person</span>
-              </button>
-            </Link>
-            <button className="flex items-center justify-center rounded-xl h-10 w-10 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-primary/20 transition-colors">
-              <span className="material-symbols-outlined text-[20px]">menu</span>
-            </button>
-          </div>
-        </header>
+        <Navbar />
 
         <main className="flex flex-col flex-1">
           {/* Hero Section */}
@@ -53,24 +46,36 @@ export default function Home() {
                 </p>
                 
                 {/* Search Bar Container */}
-                <div className="mt-4 w-full bg-white dark:bg-slate-900 p-2 rounded-2xl shadow-2xl flex flex-col lg:flex-row gap-2">
+                <form onSubmit={handleSearch} className="mt-4 w-full bg-white dark:bg-slate-900 p-2 rounded-2xl shadow-2xl flex flex-col lg:flex-row gap-2">
                   <div className="flex-1 flex items-center px-4 py-3 border-b lg:border-b-0 lg:border-r border-slate-100 dark:border-slate-800">
                     <span className="material-symbols-outlined text-primary mr-3">location_on</span>
-                    <input className="w-full bg-transparent border-none focus:ring-0 text-slate-900 dark:text-slate-100 placeholder:text-slate-400" placeholder="Where to?" type="text"/>
+                    <input 
+                      className="w-full bg-transparent border-none focus:ring-0 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 p-0 h-auto" 
+                      placeholder="Where to?" 
+                      type="text"
+                      value={destination}
+                      onChange={(e) => setDestination(e.target.value)}
+                    />
                   </div>
                   <div className="flex-1 flex items-center px-4 py-3 border-b lg:border-b-0 lg:border-r border-slate-100 dark:border-slate-800">
                     <span className="material-symbols-outlined text-primary mr-3">calendar_month</span>
-                    <input className="w-full bg-transparent border-none focus:ring-0 text-slate-900 dark:text-slate-100 placeholder:text-slate-400" placeholder="Dates" type="text" />
+                    <input 
+                      className="w-full bg-transparent border-none focus:ring-0 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 p-0 h-auto" 
+                      placeholder="Dates" 
+                      type="text"
+                      onFocus={(e) => (e.target.type = "date")}
+                      onBlur={(e) => (e.target.type = "text")}
+                    />
                   </div>
                   <div className="flex-1 flex items-center px-4 py-3">
                     <span className="material-symbols-outlined text-primary mr-3">group</span>
-                    <input className="w-full bg-transparent border-none focus:ring-0 text-slate-900 dark:text-slate-100 placeholder:text-slate-400" placeholder="Guests" type="text" />
+                    <input className="w-full bg-transparent border-none focus:ring-0 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 p-0 h-auto" placeholder="Guests" type="number" min="1" />
                   </div>
-                  <button className="bg-primary text-white font-bold py-3 px-8 rounded-xl hover:brightness-110 transition-all flex items-center justify-center gap-2">
+                  <button type="submit" className="bg-primary text-white font-bold py-3 px-8 rounded-xl hover:brightness-110 transition-all flex items-center justify-center gap-2">
                     <span className="material-symbols-outlined">search</span>
                     Search
                   </button>
-                </div>
+                </form>
               </div>
             </div>
           </section>
@@ -96,7 +101,7 @@ export default function Home() {
                 </div>
                 <span className="text-sm font-bold">Activities</span>
               </Link>
-              <Link className="flex flex-col items-center gap-2 group" href="#">
+              <Link className="flex flex-col items-center gap-2 group" href="/search?type=car">
                 <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all">
                   <span className="material-symbols-outlined text-3xl">directions_car</span>
                 </div>
@@ -108,7 +113,7 @@ export default function Home() {
           {/* Featured Deals */}
           <section className="px-4 lg:px-20 py-8 bg-slate-50 dark:bg-slate-900/50">
             <div className="flex items-center justify-between mb-8">
-              <h2 className="text-2xl lg:text-3xl font-black tracking-tight">Unbeatable Travel Deals</h2>
+              <h2 className="text-2xl lg:text-3xl font-black tracking-tight text-slate-900 dark:text-white">Unbeatable Travel Deals</h2>
               <Link className="text-primary font-bold text-sm flex items-center gap-1 hover:underline" href="/search">
                 View all
                 <span className="material-symbols-outlined text-sm">arrow_forward</span>
@@ -134,7 +139,9 @@ export default function Home() {
                   <p className="text-slate-500 dark:text-slate-400 text-sm mb-4">Starting at $99/night. Tropical paradise awaits with private pool villas.</p>
                   <div className="flex items-center justify-between">
                     <span className="text-primary font-black text-xl">$99 <span className="text-slate-400 text-xs font-normal">/night</span></span>
-                    <button className="bg-primary/10 text-primary hover:bg-primary hover:text-white px-4 py-2 rounded-lg font-bold text-sm transition-colors">Book Now</button>
+                    <Link href="/search?type=hotel&location=Bali">
+                      <button className="bg-primary/10 text-primary hover:bg-primary hover:text-white px-4 py-2 rounded-lg font-bold text-sm transition-colors">Book Now</button>
+                    </Link>
                   </div>
                 </div>
               </div>
@@ -157,7 +164,9 @@ export default function Home() {
                   <p className="text-slate-500 dark:text-slate-400 text-sm mb-4">Save on luxury ski resorts. Early bird bookings for the season.</p>
                   <div className="flex items-center justify-between">
                     <span className="text-primary font-black text-xl">$150 <span className="text-slate-400 text-xs font-normal">/night</span></span>
-                    <button className="bg-primary/10 text-primary hover:bg-primary hover:text-white px-4 py-2 rounded-lg font-bold text-sm transition-colors">Book Now</button>
+                    <Link href="/search?type=hotel&location=Alps">
+                      <button className="bg-primary/10 text-primary hover:bg-primary hover:text-white px-4 py-2 rounded-lg font-bold text-sm transition-colors">Book Now</button>
+                    </Link>
                   </div>
                 </div>
               </div>
@@ -180,7 +189,9 @@ export default function Home() {
                   <p className="text-slate-500 dark:text-slate-400 text-sm mb-4">Inclusive of full English breakfast and city tour guide.</p>
                   <div className="flex items-center justify-between">
                     <span className="text-primary font-black text-xl">$210 <span className="text-slate-400 text-xs font-normal">/night</span></span>
-                    <button className="bg-primary/10 text-primary hover:bg-primary hover:text-white px-4 py-2 rounded-lg font-bold text-sm transition-colors">Book Now</button>
+                    <Link href="/search?type=hotel&location=London">
+                      <button className="bg-primary/10 text-primary hover:bg-primary hover:text-white px-4 py-2 rounded-lg font-bold text-sm transition-colors">Book Now</button>
+                    </Link>
                   </div>
                 </div>
               </div>
@@ -194,7 +205,7 @@ export default function Home() {
             <div className="flex flex-col gap-4">
               <div className="flex items-center gap-2 text-primary mb-2">
                 <span className="material-symbols-outlined text-2xl font-bold">flight_takeoff</span>
-                <span className="text-white text-lg font-black">TravelEase</span>
+                <span className="text-white text-lg font-black uppercase tracking-tighter">Travel<span className="text-primary">Ease</span></span>
               </div>
               <p className="text-sm">Making travel simple, affordable, and accessible for everyone, everywhere.</p>
             </div>
