@@ -1,14 +1,14 @@
-
 "use client";
 
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { Navbar } from '@/components/layout/navbar';
+import { useUser } from '@/firebase';
 
 export default function Home() {
   const router = useRouter();
+  const { user } = useUser();
   const [destination, setDestination] = useState('');
 
   const handleSearch = (e: React.FormEvent) => {
@@ -20,8 +20,28 @@ export default function Home() {
   return (
     <div className="relative flex min-h-screen w-full flex-col overflow-x-hidden">
       <div className="layout-container flex h-full grow flex-col">
-        <Navbar />
-
+        {/* Navigation Bar */}
+        <header className="flex items-center justify-between whitespace-nowrap border-b border-slate-200 dark:border-slate-800 px-6 py-4 lg:px-20">
+          <Link href="/" className="flex items-center gap-2 text-primary">
+            <span className="material-symbols-outlined text-3xl font-bold">flight_takeoff</span>
+            <h2 className="text-slate-900 dark:text-slate-100 text-xl font-black leading-tight tracking-tight">TravelEase</h2>
+          </Link>
+          <nav className="hidden md:flex items-center gap-8">
+            <Link className="text-sm font-semibold hover:text-primary transition-colors" href="/search?type=flight">Discover</Link>
+            <Link className="text-sm font-semibold hover:text-primary transition-colors" href={user ? "/profile/bookings" : "/auth/login"}>Trips</Link>
+            <Link className="text-sm font-semibold hover:text-primary transition-colors" href="#">Support</Link>
+          </nav>
+          <div className="flex gap-3">
+            <Link href={user ? "/profile" : "/auth/login"}>
+              <button className="flex items-center justify-center rounded-xl h-10 w-10 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-primary/20 transition-colors">
+                <span className="material-symbols-outlined text-[20px]">person</span>
+              </button>
+            </Link>
+            <button className="flex items-center justify-center rounded-xl h-10 w-10 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-primary/20 transition-colors">
+              <span className="material-symbols-outlined text-[20px]">menu</span>
+            </button>
+          </div>
+        </header>
         <main className="flex flex-col flex-1">
           {/* Hero Section */}
           <section className="relative px-4 py-8 lg:px-20 lg:py-12">
@@ -44,7 +64,6 @@ export default function Home() {
                 <p className="text-slate-200 text-lg lg:text-xl font-medium">
                   Book flights, hotels, and unique experiences around the world.
                 </p>
-                
                 {/* Search Bar Container */}
                 <form onSubmit={handleSearch} className="mt-4 w-full bg-white dark:bg-slate-900 p-2 rounded-2xl shadow-2xl flex flex-col lg:flex-row gap-2">
                   <div className="flex-1 flex items-center px-4 py-3 border-b lg:border-b-0 lg:border-r border-slate-100 dark:border-slate-800">
@@ -59,13 +78,7 @@ export default function Home() {
                   </div>
                   <div className="flex-1 flex items-center px-4 py-3 border-b lg:border-b-0 lg:border-r border-slate-100 dark:border-slate-800">
                     <span className="material-symbols-outlined text-primary mr-3">calendar_month</span>
-                    <input 
-                      className="w-full bg-transparent border-none focus:ring-0 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 p-0 h-auto" 
-                      placeholder="Dates" 
-                      type="text"
-                      onFocus={(e) => (e.target.type = "date")}
-                      onBlur={(e) => (e.target.type = "text")}
-                    />
+                    <input className="w-full bg-transparent border-none focus:ring-0 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 p-0 h-auto" placeholder="Dates" type="text" onFocus={(e) => e.target.type = 'date'} onBlur={(e) => e.target.type = 'text'} />
                   </div>
                   <div className="flex-1 flex items-center px-4 py-3">
                     <span className="material-symbols-outlined text-primary mr-3">group</span>
@@ -79,7 +92,6 @@ export default function Home() {
               </div>
             </div>
           </section>
-
           {/* Categories */}
           <section className="px-4 lg:px-20 py-8">
             <div className="flex flex-wrap justify-center gap-4 lg:gap-8 border-b border-slate-200 dark:border-slate-800 pb-8">
@@ -109,11 +121,10 @@ export default function Home() {
               </Link>
             </div>
           </section>
-
           {/* Featured Deals */}
           <section className="px-4 lg:px-20 py-8 bg-slate-50 dark:bg-slate-900/50">
             <div className="flex items-center justify-between mb-8">
-              <h2 className="text-2xl lg:text-3xl font-black tracking-tight text-slate-900 dark:text-white">Unbeatable Travel Deals</h2>
+              <h2 className="text-2xl lg:text-3xl font-black tracking-tight">Unbeatable Travel Deals</h2>
               <Link className="text-primary font-bold text-sm flex items-center gap-1 hover:underline" href="/search">
                 View all
                 <span className="material-symbols-outlined text-sm">arrow_forward</span>
@@ -123,19 +134,13 @@ export default function Home() {
               {/* Deal 1 */}
               <div className="bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-shadow group">
                 <div className="relative h-64 overflow-hidden">
-                  <Image 
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
-                    alt="Luxury resort in Bali" 
-                    src="https://picsum.photos/seed/bali/800/600" 
-                    fill
-                    data-ai-hint="luxury resort"
-                  />
+                  <Image className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt="Luxury resort" src="https://picsum.photos/seed/bali/800/600" fill data-ai-hint="luxury resort" />
                   <div className="absolute top-4 left-4 bg-primary text-white text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider">
                     50% OFF
                   </div>
                 </div>
                 <div className="p-6">
-                  <h3 className="text-xl font-bold mb-2 text-slate-900 dark:text-slate-100">Bali Stays</h3>
+                  <h3 className="text-xl font-bold mb-2">Bali Stays</h3>
                   <p className="text-slate-500 dark:text-slate-400 text-sm mb-4">Starting at $99/night. Tropical paradise awaits with private pool villas.</p>
                   <div className="flex items-center justify-between">
                     <span className="text-primary font-black text-xl">$99 <span className="text-slate-400 text-xs font-normal">/night</span></span>
@@ -148,19 +153,13 @@ export default function Home() {
               {/* Deal 2 */}
               <div className="bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-shadow group">
                 <div className="relative h-64 overflow-hidden">
-                  <Image 
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
-                    alt="Alpine ski resort" 
-                    src="https://picsum.photos/seed/alps/800/600" 
-                    fill
-                    data-ai-hint="ski resort"
-                  />
+                  <Image className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt="Ski resort" src="https://picsum.photos/seed/alps/800/600" fill data-ai-hint="ski resort" />
                   <div className="absolute top-4 left-4 bg-primary text-white text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider">
                     Winter Sale
                   </div>
                 </div>
                 <div className="p-6">
-                  <h3 className="text-xl font-bold mb-2 text-slate-900 dark:text-slate-100">Alpine Winter Sale</h3>
+                  <h3 className="text-xl font-bold mb-2">Alpine Winter Sale</h3>
                   <p className="text-slate-500 dark:text-slate-400 text-sm mb-4">Save on luxury ski resorts. Early bird bookings for the season.</p>
                   <div className="flex items-center justify-between">
                     <span className="text-primary font-black text-xl">$150 <span className="text-slate-400 text-xs font-normal">/night</span></span>
@@ -173,19 +172,13 @@ export default function Home() {
               {/* Deal 3 */}
               <div className="bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-shadow group">
                 <div className="relative h-64 overflow-hidden">
-                  <Image 
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
-                    alt="London skyline" 
-                    src="https://picsum.photos/seed/london/800/600" 
-                    fill
-                    data-ai-hint="london city"
-                  />
+                  <Image className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt="London skyline" src="https://picsum.photos/seed/london/800/600" fill data-ai-hint="london city" />
                   <div className="absolute top-4 left-4 bg-primary text-white text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider">
                     Free Breakfast
                   </div>
                 </div>
                 <div className="p-6">
-                  <h3 className="text-xl font-bold mb-2 text-slate-900 dark:text-slate-100">London City Breaks</h3>
+                  <h3 className="text-xl font-bold mb-2">London City Breaks</h3>
                   <p className="text-slate-500 dark:text-slate-400 text-sm mb-4">Inclusive of full English breakfast and city tour guide.</p>
                   <div className="flex items-center justify-between">
                     <span className="text-primary font-black text-xl">$210 <span className="text-slate-400 text-xs font-normal">/night</span></span>
@@ -198,14 +191,13 @@ export default function Home() {
             </div>
           </section>
         </main>
-
         {/* Footer */}
         <footer className="bg-slate-900 text-slate-400 py-12 px-6 lg:px-20 border-t border-slate-800">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
             <div className="flex flex-col gap-4">
               <div className="flex items-center gap-2 text-primary mb-2">
                 <span className="material-symbols-outlined text-2xl font-bold">flight_takeoff</span>
-                <span className="text-white text-lg font-black uppercase tracking-tighter">Travel<span className="text-primary">Ease</span></span>
+                <span className="text-white text-lg font-black uppercase tracking-tighter">TravelEase</span>
               </div>
               <p className="text-sm">Making travel simple, affordable, and accessible for everyone, everywhere.</p>
             </div>

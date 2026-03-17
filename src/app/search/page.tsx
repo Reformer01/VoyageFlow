@@ -1,14 +1,12 @@
-
 "use client";
 
 import { useSearchParams } from 'next/navigation';
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
+import Image from 'next/image';
 import { useBasket, TravelService } from '@/context/basket-context';
 import { useToast } from '@/hooks/use-toast';
-import { Navbar } from '@/components/layout/navbar';
+import { useUser } from '@/firebase';
 
 // Mock data generator for results
 const getResults = (type: string | null): (TravelService & { 
@@ -44,8 +42,10 @@ const getResults = (type: string | null): (TravelService & {
 export default function SearchPage() {
   const searchParams = useSearchParams();
   const type = searchParams.get('type') || 'hotel';
+  const locationParam = searchParams.get('location') || 'Santorini';
   const { addToBasket } = useBasket();
   const { toast } = useToast();
+  const { user } = useUser();
   const [priceRange, setPriceRange] = useState([120, 850]);
 
   const results = useMemo(() => getResults(type), [type]);
@@ -60,7 +60,42 @@ export default function SearchPage() {
 
   return (
     <div className="relative flex min-h-screen flex-col overflow-x-hidden font-display bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 transition-colors duration-200">
-      <Navbar />
+      <header className="sticky top-0 z-50 w-full border-b border-primary/10 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md px-6 lg:px-20 py-3">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-8">
+          <div className="flex items-center gap-8">
+            <Link href="/" className="flex items-center gap-2 text-primary">
+              <span className="material-symbols-outlined text-3xl font-bold">flight_takeoff</span>
+              <h2 className="text-xl font-bold leading-tight tracking-tight text-slate-900 dark:text-slate-100">TravelEase</h2>
+            </Link>
+            <div className="hidden md:flex flex-col min-w-64">
+              <div className="flex w-full items-stretch rounded-xl h-10 overflow-hidden bg-slate-200/50 dark:bg-primary/10 border border-slate-300 dark:border-primary/20">
+                <div className="flex items-center justify-center pl-3 text-slate-500">
+                  <span className="material-symbols-outlined">search</span>
+                </div>
+                <input className="w-full border-none bg-transparent focus:ring-0 text-sm placeholder:text-slate-500" placeholder="Where to next?" defaultValue={locationParam} />
+              </div>
+            </div>
+          </div>
+          <div className="flex items-center gap-6">
+            <nav className="hidden lg:flex items-center gap-8">
+              <Link className={`text-sm font-semibold transition-colors ${type === 'hotel' ? 'text-primary' : 'hover:text-primary'}`} href="/search?type=hotel">Hotels</Link>
+              <Link className={`text-sm font-semibold transition-colors ${type === 'flight' ? 'text-primary' : 'hover:text-primary'}`} href="/search?type=flight">Flights</Link>
+              <Link className="text-sm font-semibold hover:text-primary transition-colors" href={user ? "/profile/bookings" : "/auth/login"}>Trips</Link>
+              <Link className="text-sm font-semibold hover:text-primary transition-colors" href="/search?type=deal">Deals</Link>
+            </nav>
+            <div className="flex gap-3">
+              <button className="flex items-center justify-center rounded-xl size-10 bg-slate-200/50 dark:bg-primary/10 hover:bg-primary/20 transition-colors">
+                <span className="material-symbols-outlined text-slate-700 dark:text-slate-200">notifications</span>
+              </button>
+              <Link href={user ? "/profile" : "/auth/login"}>
+                <button className="flex items-center justify-center rounded-xl size-10 bg-slate-200/50 dark:bg-primary/10 hover:bg-primary/20 transition-colors">
+                  <span className="material-symbols-outlined text-slate-700 dark:text-slate-200">account_circle</span>
+                </button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </header>
 
       <main className="mx-auto flex w-full max-w-7xl flex-1 gap-8 px-6 lg:px-20 py-8">
         <aside className="hidden w-72 shrink-0 flex-col gap-8 lg:flex">
@@ -87,7 +122,7 @@ export default function SearchPage() {
                 <div className="flex flex-col gap-3">
                   {[5, 4, 3].map((star) => (
                     <label key={star} className="flex cursor-pointer items-center gap-3">
-                      <Checkbox className="border-slate-300 text-primary h-5 w-5" defaultChecked={star >= 4} />
+                      <input type="checkbox" className="rounded border-slate-300 text-primary focus:ring-primary h-5 w-5 bg-transparent" defaultChecked={star >= 4} />
                       <span className="flex items-center gap-1 text-sm font-medium">
                         {star} <span className="material-symbols-outlined text-primary text-sm FILL-1">star</span> Stars
                       </span>
@@ -100,16 +135,16 @@ export default function SearchPage() {
                 <div className="flex flex-col gap-3">
                   {['Free WiFi', 'Infinity Pool', 'Spa & Wellness', 'Airport Shuttle'].map((amenity, i) => (
                     <label key={amenity} className="flex cursor-pointer items-center gap-3">
-                      <Checkbox className="border-slate-300 text-primary h-5 w-5" defaultChecked={i === 1} />
+                      <input type="checkbox" className="rounded border-slate-300 text-primary focus:ring-primary h-5 w-5 bg-transparent" defaultChecked={i === 1} />
                       <span className="text-sm font-medium">{amenity}</span>
                     </label>
                   ))}
                 </div>
               </div>
               <div className="pt-4">
-                <Button className="w-full rounded-xl bg-primary font-bold text-white hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 h-12">
+                <button className="w-full rounded-xl bg-primary py-3 text-sm font-bold text-white hover:bg-primary/90 transition-all shadow-lg shadow-primary/20">
                   Apply Filters
-                </Button>
+                </button>
               </div>
             </div>
           </div>
@@ -198,12 +233,12 @@ export default function SearchPage() {
                         <span className="text-xs text-slate-500">/ night</span>
                       </div>
                     </div>
-                    <Button 
+                    <button 
                       onClick={() => handleBookNow(service)}
                       className="rounded-xl bg-primary px-8 py-3 text-sm font-bold text-white hover:bg-primary/90 transition-all border-none h-11"
                     >
                       Book Now
-                    </Button>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -233,8 +268,8 @@ export default function SearchPage() {
           <div className="grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-4">
             <div className="flex flex-col gap-4">
               <div className="flex items-center gap-2 text-primary">
-                <span className="material-symbols-outlined text-2xl">flight_takeoff</span>
-                <h2 className="text-lg font-bold text-slate-900 dark:text-white uppercase tracking-tighter">Travel<span className="text-primary">Ease</span></h2>
+                <span className="material-symbols-outlined text-2xl font-bold">flight_takeoff</span>
+                <h2 className="text-lg font-bold text-slate-900 dark:text-white uppercase tracking-tighter">TravelEase</h2>
               </div>
               <p className="text-sm text-slate-500">Making travel planning smarter, faster, and more accessible for everyone.</p>
               <div className="flex gap-4">
