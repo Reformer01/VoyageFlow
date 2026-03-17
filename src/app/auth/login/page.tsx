@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -109,9 +108,9 @@ export default function AuthPage() {
             />
           </div>
           
-          <div className="relative z-20 flex items-center gap-2">
+          <div className="relative z-20 flex items-center gap-2 text-white">
             <span className="material-symbols-outlined text-4xl">flight_takeoff</span>
-            <h1 className="text-2xl font-bold tracking-tight">TravelEase</h1>
+            <h1 className="text-2xl font-bold tracking-tight uppercase">TravelEase</h1>
           </div>
 
           <div className="relative z-20">
@@ -133,7 +132,7 @@ export default function AuthPage() {
           <div className="w-full max-w-md mx-auto">
             <div className="flex items-center gap-2 mb-8 lg:hidden text-primary">
               <span className="material-symbols-outlined text-3xl">flight_takeoff</span>
-              <h2 className="text-xl font-bold">TravelEase</h2>
+              <h2 className="text-xl font-bold uppercase">TravelEase</h2>
             </div>
 
             <div className="mb-10">

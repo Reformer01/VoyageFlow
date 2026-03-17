@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from 'next/link';
@@ -27,7 +26,7 @@ export function Navbar() {
         <nav className="hidden md:flex items-center gap-8">
           <Link href="/search?type=flight" className="text-sm font-semibold hover:text-primary transition-colors text-slate-600 dark:text-slate-300">Discover</Link>
           <Link href={user ? "/profile/bookings" : "/auth/login"} className="text-sm font-semibold hover:text-primary transition-colors text-slate-600 dark:text-slate-300">Trips</Link>
-          <Link href="#" className="text-sm font-semibold hover:text-primary transition-colors text-slate-600 dark:text-slate-300">Support</Link>
+          <Link href="/support" className="text-sm font-semibold hover:text-primary transition-colors text-slate-600 dark:text-slate-300">Support</Link>
         </nav>
 
         <div className="flex items-center gap-3">
@@ -43,7 +42,11 @@ export function Navbar() {
           </Link>
           <Link href={user ? "/profile" : "/auth/login"}>
             <Button variant="secondary" size="icon" className="rounded-xl h-10 w-10 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-primary/20 transition-all">
-              <User className="h-5 w-5" />
+              {user?.photoURL ? (
+                <img src={user.photoURL} className="h-full w-full object-cover rounded-xl" alt="Profile" />
+              ) : (
+                <User className="h-5 w-5" />
+              )}
             </Button>
           </Link>
           <Button className="md:hidden rounded-xl h-10 w-10 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-primary/20" variant="ghost" size="icon">
