@@ -10,8 +10,8 @@
         "lastName": { "type": "string" },
         "email": { "type": "string", "format": "email" },
         "phoneNumber": { "type": "string" },
-        "createdAt": { "type": "string", "format": "date-time" },
-        "updatedAt": { "type": "string", "format": "date-time" }
+        "createdAt": { "type": "object" },
+        "updatedAt": { "type": "object" }
       },
       "required": ["id", "email"]
     },
@@ -35,7 +35,7 @@
     }
   },
   "auth": {
-    "providers": ["password", "google", "facebook"]
+    "providers": ["password", "google"]
   },
   "firestore": {
     "structure": [

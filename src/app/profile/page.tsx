@@ -111,7 +111,7 @@ export default function ProfilePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between gap-8">
             <Link href="/" className="flex items-center gap-2 text-primary">
-              <span className="material-symbols-outlined text-3xl font-bold">travel_explore</span>
+              <span className="material-symbols-outlined text-3xl font-bold">flight_takeoff</span>
               <h2 className="text-slate-900 dark:text-slate-100 text-xl font-bold tracking-tight uppercase">TravelEase</h2>
             </Link>
             <nav className="hidden md:flex items-center gap-6">
@@ -136,7 +136,7 @@ export default function ProfilePage() {
                 <div className="h-24 w-24 rounded-full overflow-hidden border-4 border-primary/10">
                   <Image width={96} height={96} alt={user.displayName || "User"} src={user.photoURL || "https://picsum.photos/seed/user/200/200"} />
                 </div>
-                <h3 className="mt-4 text-lg font-bold truncate max-w-full">
+                <h3 className="mt-4 text-lg font-bold truncate max-w-full text-center px-2">
                   {formData.firstName || formData.lastName ? `${formData.firstName} ${formData.lastName}` : (user.displayName || 'Explorer')}
                 </h3>
                 <p className="text-sm text-primary font-medium">Verified Account</p>
