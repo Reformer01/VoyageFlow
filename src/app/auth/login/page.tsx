@@ -70,14 +70,19 @@ export default function AuthPage() {
         ? new GoogleAuthProvider() 
         : new FacebookAuthProvider();
       
-      // Using redirect instead of popup to avoid popup-blocked and cancelled-popup errors
-      // common in development environments and workstations.
+      // Using redirect instead of popup to avoid popup-blocked errors in dev environments.
       await signInWithRedirect(auth, provider);
     } catch (error: any) {
       console.error(`${providerName} login failed`, error);
       setSocialLoading(false);
       
-      if (error.code !== 'auth/cancelled-popup-request') {
+      if (error.code === 'auth/unauthorized-domain') {
+        toast({
+          variant: "destructive",
+          title: "Domain Not Authorized",
+          description: "This domain is not authorized in your Firebase project. Please add it in the Firebase Console under Authentication > Settings > Authorized domains."
+        });
+      } else if (error.code !== 'auth/cancelled-popup-request') {
         toast({
           variant: "destructive",
           title: "Login Failed",
