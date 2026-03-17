@@ -9,6 +9,6 @@ export function FooterYear() {
     setYear(new Date().getFullYear());
   }, []);
 
-  // Fallback to a static year during hydration to avoid mismatches
-  return <span>{year || '2025'}</span>;
+  // Fallback to 2026 during hydration to avoid mismatches and satisfy user request
+  return <span>{year || '2026'}</span>;
 }

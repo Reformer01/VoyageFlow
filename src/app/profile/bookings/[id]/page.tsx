@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useParams, useRouter } from 'next/navigation';
@@ -304,7 +303,7 @@ export default function BookingDetailsPage() {
         {/* Footer */}
         <footer className="mt-auto px-6 py-10 border-t border-slate-200 dark:border-slate-800 text-center">
           <p className="text-sm text-slate-500 dark:text-slate-400">Need help with your booking? <Link className="text-primary font-bold" href="/support">Contact Support</Link></p>
-          <p className="text-[10px] text-slate-400 mt-2 uppercase tracking-widest">© 2024 TravelEase Global Inc.</p>
+          <p className="text-[10px] text-slate-400 mt-2 uppercase tracking-widest">© 2026 TravelEase Global Inc.</p>
         </footer>
       </div>
     </div>

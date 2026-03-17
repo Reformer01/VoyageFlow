@@ -1,4 +1,3 @@
-
 "use client";
 
 import Image from 'next/image';
@@ -227,7 +226,7 @@ export default function Home() {
             </div>
           </div>
           <div className="pt-8 border-t border-slate-800 text-center text-xs">
-            © 2024 TravelEase. All rights reserved.
+            © 2026 TravelEase. All rights reserved.
           </div>
         </footer>
       </div>

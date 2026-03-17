@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect } from 'react';
@@ -108,7 +107,7 @@ export default function RegisterPageRedirect() {
 
         {/* Footer */}
         <footer className="py-8 px-6 text-center">
-          <p className="text-slate-400 text-xs uppercase tracking-[0.2em] font-semibold">© 2024 TravelEase Global. All rights reserved.</p>
+          <p className="text-slate-400 text-xs uppercase tracking-[0.2em] font-semibold">© 2026 TravelEase Global. All rights reserved.</p>
         </footer>
       </div>
     </div>

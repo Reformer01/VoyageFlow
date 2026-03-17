@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from 'next/link';
@@ -97,7 +96,7 @@ export default function SupportPage() {
       </main>
 
       <footer className="py-12 text-center text-slate-400 text-sm">
-        © 2024 TravelEase Global Support. All rights reserved.
+        © 2026 TravelEase Global Support. All rights reserved.
       </footer>
     </div>
   );

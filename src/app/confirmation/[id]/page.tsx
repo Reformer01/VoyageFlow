@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useParams } from 'next/navigation';
@@ -135,7 +134,7 @@ export default function ConfirmationPage() {
 
         {/* Global Footer */}
         <footer className="mt-auto py-8 border-t border-slate-200 dark:border-slate-800 text-center text-xs text-slate-400 dark:text-slate-500 font-medium">
-          © 2024 TravelEase. All rights reserved.
+          © 2026 TravelEase. All rights reserved.
         </footer>
       </div>
     </div>
