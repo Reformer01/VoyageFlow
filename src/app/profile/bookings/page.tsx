@@ -1,47 +1,16 @@
 
 "use client";
 
-import { useUser } from '@/firebase';
+import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-
-const MOCK_BOOKINGS = [
-  {
-    id: "TE-88291",
-    location: "Santorini, Greece",
-    date: "Oct 12 - Oct 19, 2024",
-    price: "$1,840.00",
-    status: "Confirmed",
-    image: "https://picsum.photos/seed/santorini/400/300",
-    type: "Combination",
-    details: "Lufthansa A320 • Azure Resort & Spa"
-  },
-  {
-    id: "FL-77210",
-    location: "London to New York",
-    date: "Nov 05, 2024",
-    price: "$542.00",
-    status: "Confirmed",
-    image: "https://picsum.photos/seed/flight-detail/400/300",
-    type: "Flight",
-    details: "British Airways • Business Class"
-  },
-  {
-    id: "HT-44921",
-    location: "Tokyo, Japan",
-    date: "Dec 01 - Dec 08, 2024",
-    price: "$2,100.00",
-    status: "Payment Pending",
-    image: "https://picsum.photos/seed/tokyo-hotel/400/300",
-    type: "Hotel",
-    details: "Park Hyatt Tokyo • Deluxe Suite"
-  }
-];
+import { collection, query, orderBy } from 'firebase/firestore';
 
 export default function MyBookingsPage() {
   const { user, isUserLoading } = useUser();
+  const db = useFirestore();
   const router = useRouter();
 
   useEffect(() => {
@@ -50,7 +19,17 @@ export default function MyBookingsPage() {
     }
   }, [user, isUserLoading, router]);
 
-  if (isUserLoading) {
+  const bookingsQuery = useMemoFirebase(() => {
+    if (!db || !user) return null;
+    return query(
+      collection(db, 'users', user.uid, 'bookings'),
+      orderBy('bookingDate', 'desc')
+    );
+  }, [db, user]);
+
+  const { data: bookings, isLoading: isBookingsLoading } = useCollection(bookingsQuery);
+
+  if (isUserLoading || isBookingsLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background-light dark:bg-background-dark">
         <span className="material-symbols-outlined text-primary text-5xl animate-spin">refresh</span>
@@ -86,49 +65,60 @@ export default function MyBookingsPage() {
         <div className="space-y-6">
           <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2 mb-4">
             <span className="material-symbols-outlined text-primary">event_upcoming</span>
-            Upcoming Trips
+            Booking History
           </h3>
 
-          {MOCK_BOOKINGS.map((booking) => (
-            <div key={booking.id} className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-              <div className="flex flex-col md:flex-row">
-                <div className="md:w-48 h-40 relative">
-                  <Image fill src={booking.image} alt={booking.location} className="object-cover" />
-                </div>
-                <div className="flex-1 p-6 flex flex-col justify-between">
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-xs font-bold uppercase tracking-widest text-primary">Booking #{booking.id}</span>
-                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
-                          booking.status === 'Confirmed' 
-                            ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400' 
-                            : 'bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400'
-                        }`}>
-                          {booking.status}
-                        </span>
-                      </div>
-                      <h4 className="text-2xl font-bold text-slate-900 dark:text-white">{booking.location}</h4>
-                      <p className="text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-1">
-                        <span className="material-symbols-outlined text-sm">calendar_today</span>
-                        {booking.date}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm text-slate-400">Total Price</p>
-                      <p className="text-xl font-black text-slate-900 dark:text-white">{booking.price}</p>
-                    </div>
+          {!bookings || bookings.length === 0 ? (
+            <div className="text-center py-20 bg-white dark:bg-slate-900 rounded-3xl border border-dashed border-slate-200 dark:border-slate-800">
+              <span className="material-symbols-outlined text-6xl text-slate-300 mb-4">luggage</span>
+              <h3 className="text-xl font-bold">No bookings found</h3>
+              <p className="text-slate-500 mb-8">Ready for an adventure? Start exploring today.</p>
+              <Link href="/search">
+                <button className="bg-primary hover:bg-primary/90 px-8 py-3 rounded-xl text-white font-bold transition-all">Find Trips</button>
+              </Link>
+            </div>
+          ) : (
+            bookings.map((booking) => (
+              <div key={booking.id} className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                <div className="flex flex-col md:flex-row">
+                  <div className="md:w-48 h-40 relative">
+                    <Image fill src={booking.image || "https://picsum.photos/seed/travel/400/300"} alt={booking.location} className="object-cover" />
                   </div>
-                  <div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
-                    <p className="text-sm text-slate-500 font-medium">{booking.details}</p>
-                    <Link href={`/profile/bookings/${booking.id}`}>
-                      <button className="bg-primary hover:bg-primary/90 text-white px-6 py-2 rounded-lg font-bold transition-colors">View Details</button>
-                    </Link>
+                  <div className="flex-1 p-6 flex flex-col justify-between">
+                    <div className="flex justify-between items-start mb-4">
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-xs font-bold uppercase tracking-widest text-primary">Booking #{booking.id}</span>
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
+                            booking.status === 'confirmed' 
+                              ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400' 
+                              : 'bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400'
+                          }`}>
+                            {booking.status}
+                          </span>
+                        </div>
+                        <h4 className="text-2xl font-bold text-slate-900 dark:text-white">{booking.location}</h4>
+                        <p className="text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-1">
+                          <span className="material-symbols-outlined text-sm">calendar_today</span>
+                          {new Date(booking.bookingDate).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm text-slate-400">Total Price</p>
+                        <p className="text-xl font-black text-slate-900 dark:text-white">${booking.totalAmount.toFixed(2)}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                      <p className="text-sm text-slate-500 font-medium">{booking.title}</p>
+                      <Link href={`/profile/bookings/${booking.id}`}>
+                        <button className="bg-primary hover:bg-primary/90 text-white px-6 py-2 rounded-lg font-bold transition-colors">View Details</button>
+                      </Link>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </main>
     </div>

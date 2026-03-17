@@ -7,13 +7,17 @@ import { useBasket } from '@/context/basket-context';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useUser } from '@/firebase';
+import { useUser, useFirestore } from '@/firebase';
+import { doc, setDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 export default function CheckoutPage() {
   const router = useRouter();
   const { totalPrice, items, clearBasket } = useBasket();
   const { toast } = useToast();
   const { user } = useUser();
+  const db = useFirestore();
   const [loading, setLoading] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<'card' | 'bank' | 'ussd'>('card');
 
@@ -21,28 +25,72 @@ export default function CheckoutPage() {
   const serviceFee = Math.floor(totalPrice * 0.02);
   const grandTotal = totalPrice + taxesAndFees + serviceFee;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user || !db) {
+      toast({ variant: "destructive", title: "Error", description: "You must be logged in to book." });
+      return;
+    }
+
     setLoading(true);
 
-    // Save the "last purchase" to localStorage for the confirmation page
-    localStorage.setItem('travelease_last_purchase', JSON.stringify({
-      items,
-      total: grandTotal,
-      date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
-    }));
+    const bookingId = `BK-${Math.random().toString(36).substring(2, 9).toUpperCase()}`;
+    const bookingRef = doc(db, 'users', user.uid, 'bookings', bookingId);
 
-    // Simulate payment processing
-    setTimeout(() => {
-      setLoading(false);
-      const bookingId = `BK-${Math.random().toString(36).substring(2, 9).toUpperCase()}`;
-      clearBasket();
-      toast({
-        title: "Payment Successful",
-        description: `Your booking ${bookingId} has been confirmed.`,
+    const bookingData = {
+      id: bookingId,
+      userId: user.uid,
+      bookingReference: bookingId,
+      totalAmount: grandTotal,
+      currency: 'USD',
+      status: 'confirmed',
+      bookingDate: new Date().toISOString(),
+      paymentId: `PAY-${Math.random().toString(36).substring(2, 9).toUpperCase()}`,
+      createdAt: serverTimestamp(),
+      location: items[0]?.location || 'Global',
+      title: items[0]?.title || 'Travel Package',
+      image: items[0]?.image || ''
+    };
+
+    // Save to Firestore
+    setDoc(bookingRef, bookingData)
+      .then(() => {
+        // Also save items to subcollection for full normalization
+        items.forEach((item, index) => {
+          const itemRef = doc(db, 'users', user.uid, 'bookings', bookingId, 'booking_items', `item-${index}`);
+          setDoc(itemRef, {
+            ...item,
+            bookingId,
+            userId: user.uid,
+            quantity: 1,
+            priceAtTimeOfBooking: item.price,
+            itemStatus: 'confirmed',
+            startDate: new Date().toISOString()
+          });
+        });
+
+        localStorage.setItem('travelease_last_purchase', JSON.stringify({
+          items,
+          total: grandTotal,
+          date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+        }));
+
+        clearBasket();
+        toast({
+          title: "Payment Successful",
+          description: `Your booking ${bookingId} has been confirmed.`,
+        });
+        router.push(`/confirmation/${bookingId}`);
+      })
+      .catch((error) => {
+        const permissionError = new FirestorePermissionError({
+          path: bookingRef.path,
+          operation: 'create',
+          requestResourceData: bookingData,
+        });
+        errorEmitter.emit('permission-error', permissionError);
+        setLoading(false);
       });
-      router.push(`/confirmation/${bookingId}`);
-    }, 2500);
   };
 
   if (items.length === 0) {
@@ -111,21 +159,21 @@ export default function CheckoutPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="flex flex-col gap-1.5">
                       <label className="text-sm font-medium text-slate-700 dark:text-slate-300">First Name</label>
-                      <input required className="rounded-lg border-slate-300 dark:border-slate-700 bg-transparent focus:border-primary focus:ring-primary h-10 px-3" placeholder="John" type="text" defaultValue={user?.displayName?.split(' ')[0] || ''} />
+                      <input required className="rounded-lg border-slate-300 dark:border-slate-700 bg-transparent focus:border-primary focus:ring-primary h-10 px-3 text-sm" placeholder="John" type="text" defaultValue={user?.displayName?.split(' ')[0] || ''} />
                     </div>
                     <div className="flex flex-col gap-1.5">
                       <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Last Name</label>
-                      <input required className="rounded-lg border-slate-300 dark:border-slate-700 bg-transparent focus:border-primary focus:ring-primary h-10 px-3" placeholder="Doe" type="text" defaultValue={user?.displayName?.split(' ')[1] || ''} />
+                      <input required className="rounded-lg border-slate-300 dark:border-slate-700 bg-transparent focus:border-primary focus:ring-primary h-10 px-3 text-sm" placeholder="Doe" type="text" defaultValue={user?.displayName?.split(' ')[1] || ''} />
                     </div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="flex flex-col gap-1.5">
                       <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Email Address</label>
-                      <input required className="rounded-lg border-slate-300 dark:border-slate-700 bg-transparent focus:border-primary focus:ring-primary h-10 px-3" placeholder="john@example.com" type="email" defaultValue={user?.email || ''} />
+                      <input required className="rounded-lg border-slate-300 dark:border-slate-700 bg-transparent focus:border-primary focus:ring-primary h-10 px-3 text-sm" placeholder="john@example.com" type="email" defaultValue={user?.email || ''} />
                     </div>
                     <div className="flex flex-col gap-1.5">
                       <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Phone Number</label>
-                      <input required className="rounded-lg border-slate-300 dark:border-slate-700 bg-transparent focus:border-primary focus:ring-primary h-10 px-3" placeholder="+1 000 000 0000" type="tel" />
+                      <input required className="rounded-lg border-slate-300 dark:border-slate-700 bg-transparent focus:border-primary focus:ring-primary h-10 px-3 text-sm" placeholder="+1 000 000 0000" type="tel" />
                     </div>
                   </div>
                 </div>
@@ -162,7 +210,7 @@ export default function CheckoutPage() {
                       <div className="flex flex-col gap-1.5">
                         <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Card Number</label>
                         <div className="relative">
-                          <input required className="w-full rounded-lg border-slate-300 dark:border-slate-700 bg-transparent pr-12 focus:border-primary focus:ring-primary h-10 px-3" placeholder="0000 0000 0000 0000" type="text" />
+                          <input required className="w-full rounded-lg border-slate-300 dark:border-slate-700 bg-transparent pr-12 focus:border-primary focus:ring-primary h-10 px-3 text-sm" placeholder="0000 0000 0000 0000" type="text" />
                           <div className="absolute right-3 top-1/2 -translate-y-1/2 flex gap-1">
                             <span className="material-symbols-outlined text-slate-400">credit_card</span>
                           </div>
@@ -171,11 +219,11 @@ export default function CheckoutPage() {
                       <div className="grid grid-cols-2 gap-4">
                         <div className="flex flex-col gap-1.5">
                           <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Expiry Date</label>
-                          <input required className="rounded-lg border-slate-300 dark:border-slate-700 bg-transparent focus:border-primary focus:ring-primary h-10 px-3" placeholder="MM / YY" type="text" />
+                          <input required className="rounded-lg border-slate-300 dark:border-slate-700 bg-transparent focus:border-primary focus:ring-primary h-10 px-3 text-sm" placeholder="MM / YY" type="text" />
                         </div>
                         <div className="flex flex-col gap-1.5">
                           <label className="text-xs font-bold uppercase tracking-wider text-slate-500">CVV</label>
-                          <input required className="rounded-lg border-slate-300 dark:border-slate-700 bg-transparent focus:border-primary focus:ring-primary h-10 px-3" placeholder="***" type="password" />
+                          <input required className="rounded-lg border-slate-300 dark:border-slate-700 bg-transparent focus:border-primary focus:ring-primary h-10 px-3 text-sm" placeholder="***" type="password" />
                         </div>
                       </div>
                       <div className="pt-4">

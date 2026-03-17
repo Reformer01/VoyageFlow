@@ -1,21 +1,41 @@
 
 "use client";
 
-import { useUser, useAuth } from '@/firebase';
+import { useUser, useAuth, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { signOut } from 'firebase/auth';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { useToast } from '@/hooks/use-toast';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 export default function ProfilePage() {
   const { user, isUserLoading } = useUser();
   const auth = useAuth();
+  const db = useFirestore();
   const router = useRouter();
+  const { toast } = useToast();
+  const [saving, setSaving] = useState(false);
+
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phoneNumber: ''
+  });
+
+  const profileRef = useMemoFirebase(() => {
+    if (!db || !user) return null;
+    return doc(db, 'users', user.uid);
+  }, [db, user]);
+
+  const { data: profile, isLoading: isProfileLoading } = useDoc(profileRef);
 
   useEffect(() => {
     if (!isUserLoading && !user) {
@@ -23,12 +43,51 @@ export default function ProfilePage() {
     }
   }, [user, isUserLoading, router]);
 
+  useEffect(() => {
+    if (profile) {
+      setFormData({
+        firstName: profile.firstName || user?.displayName?.split(' ')[0] || '',
+        lastName: profile.lastName || user?.displayName?.split(' ')[1] || '',
+        email: profile.email || user?.email || '',
+        phoneNumber: profile.phoneNumber || ''
+      });
+    }
+  }, [profile, user]);
+
   const handleLogout = async () => {
     await signOut(auth);
     router.push('/');
   };
 
-  if (isUserLoading) {
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!profileRef) return;
+
+    setSaving(true);
+    const updateData = {
+      ...formData,
+      id: user?.uid,
+      updatedAt: serverTimestamp(),
+      createdAt: profile?.createdAt || serverTimestamp()
+    };
+
+    setDoc(profileRef, updateData, { merge: true })
+      .then(() => {
+        toast({ title: "Profile Updated", description: "Your changes have been saved successfully." });
+        setSaving(false);
+      })
+      .catch((error) => {
+        const permissionError = new FirestorePermissionError({
+          path: profileRef.path,
+          operation: 'update',
+          requestResourceData: updateData,
+        });
+        errorEmitter.emit('permission-error', permissionError);
+        setSaving(false);
+      });
+  };
+
+  if (isUserLoading || isProfileLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background-light dark:bg-background-dark">
         <span className="material-symbols-outlined text-primary text-5xl animate-spin">refresh</span>
@@ -69,8 +128,8 @@ export default function ProfilePage() {
                 <div className="h-24 w-24 rounded-full overflow-hidden border-4 border-primary/10">
                   <Image width={96} height={96} alt={user.displayName || "User"} src={user.photoURL || "https://picsum.photos/seed/user/200/200"} />
                 </div>
-                <h3 className="mt-4 text-lg font-bold">{user.displayName || "Explorer"}</h3>
-                <p className="text-sm text-primary font-medium">Gold Member</p>
+                <h3 className="mt-4 text-lg font-bold">{formData.firstName} {formData.lastName}</h3>
+                <p className="text-sm text-primary font-medium">Explorer</p>
               </div>
               <nav className="space-y-1">
                 <Link href="/profile" className="flex items-center gap-3 px-4 py-3 rounded-xl bg-primary text-white font-medium">
@@ -90,39 +149,52 @@ export default function ProfilePage() {
           </aside>
 
           <div className="flex-1 space-y-8">
-            <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
-                <div className="flex items-center justify-between mb-2">
-                  <p className="text-sm font-medium text-slate-500">Total Trips</p>
-                  <span className="material-symbols-outlined text-primary">flight_takeoff</span>
-                </div>
-                <p className="text-3xl font-bold">24</p>
-              </div>
-              <div className="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
-                <div className="flex items-center justify-between mb-2">
-                  <p className="text-sm font-medium text-slate-500">Loyalty Points</p>
-                  <span className="material-symbols-outlined text-primary">stars</span>
-                </div>
-                <p className="text-3xl font-bold">4,250</p>
-              </div>
-            </section>
-
             <section className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
-              <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+              <div className="p-6 border-b border-slate-100 dark:border-slate-800">
                 <h2 className="text-xl font-bold">Personal Information</h2>
               </div>
-              <div className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <form onSubmit={handleSave} className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium text-slate-600 dark:text-slate-400">Full Name</Label>
-                    <Input readOnly value={user.displayName || ""} />
+                    <Label className="text-sm font-medium text-slate-600 dark:text-slate-400">First Name</Label>
+                    <Input 
+                      value={formData.firstName} 
+                      onChange={(e) => setFormData({...formData, firstName: e.target.value})}
+                      placeholder="John"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium text-slate-600 dark:text-slate-400">Last Name</Label>
+                    <Input 
+                      value={formData.lastName} 
+                      onChange={(e) => setFormData({...formData, lastName: e.target.value})}
+                      placeholder="Doe"
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label className="text-sm font-medium text-slate-600 dark:text-slate-400">Email Address</Label>
-                    <Input readOnly value={user.email || ""} />
+                    <Input 
+                      value={formData.email} 
+                      onChange={(e) => setFormData({...formData, email: e.target.value})}
+                      placeholder="name@example.com"
+                      type="email"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium text-slate-600 dark:text-slate-400">Phone Number</Label>
+                    <Input 
+                      value={formData.phoneNumber} 
+                      onChange={(e) => setFormData({...formData, phoneNumber: e.target.value})}
+                      placeholder="+1 (555) 000-0000"
+                    />
                   </div>
                 </div>
-              </div>
+                <div className="flex justify-end">
+                  <Button disabled={saving} type="submit" className="px-8 font-bold rounded-xl h-11">
+                    {saving ? 'Saving...' : 'Save Changes'}
+                  </Button>
+                </div>
+              </form>
             </section>
           </div>
         </div>
