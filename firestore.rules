@@ -6,8 +6,8 @@ service cloud.firestore {
      * VoyageFlow Security Rules
      *
      * CORE PHILOSOPHY:
-     * This ruleset enforces a strict user-ownership model combined with role-based access for administrative 
-     * functions. Data access is primarily governed by the user's identity as established via Firebase Auth.
+     * This ruleset enforces a strict user-ownership model. Data access is primarily 
+     * governed by the user's identity as established via Firebase Auth.
      */
 
     // --- HELPER FUNCTIONS ---
@@ -20,18 +20,6 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == userId;
     }
 
-    function isExistingOwner(userId) {
-      return resource != null && isOwner(userId);
-    }
-
-    function isAdmin() {
-      return isSignedIn() && exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid));
-    }
-
-    function dataMatchesOwner(userId) {
-      return request.resource.data.userProfileId == userId;
-    }
-
     // --- COLLECTION RULES ---
 
     /**
@@ -39,24 +27,19 @@ service cloud.firestore {
      * Path: /users/{userId}
      */
     match /users/{userId} {
+      // Allow owners to read and write their own profile document
       allow get: if isOwner(userId);
-      allow create, update: if isOwner(userId) && request.resource.data.id == userId;
+      allow create, update: if isOwner(userId);
       allow delete: if isOwner(userId);
 
       /**
        * @description Temporary shopping baskets for users.
        */
       match /bookingBaskets/{basketId} {
-        allow get, list: if isOwner(userId);
-        allow create: if isOwner(userId) && dataMatchesOwner(userId);
-        allow update: if isExistingOwner(userId) && dataMatchesOwner(userId) && request.resource.data.userProfileId == resource.data.userProfileId;
-        allow delete: if isExistingOwner(userId);
-
+        allow read, write: if isOwner(userId);
+        
         match /items/{itemId} {
-          allow get, list: if isOwner(userId);
-          allow create: if isOwner(userId) && dataMatchesOwner(userId);
-          allow update: if isExistingOwner(userId) && dataMatchesOwner(userId) && request.resource.data.userProfileId == resource.data.userProfileId;
-          allow delete: if isExistingOwner(userId);
+          allow read, write: if isOwner(userId);
         }
       }
 
@@ -64,16 +47,10 @@ service cloud.firestore {
        * @description Confirmed travel bookings.
        */
       match /bookings/{bookingId} {
-        allow get, list: if isOwner(userId);
-        allow create: if isOwner(userId) && dataMatchesOwner(userId);
-        allow update: if isExistingOwner(userId) && dataMatchesOwner(userId) && request.resource.data.userProfileId == resource.data.userProfileId;
-        allow delete: if isExistingOwner(userId);
+        allow read, write: if isOwner(userId);
 
-        match /items/{bookedItemId} {
-          allow get, list: if isOwner(userId);
-          allow create: if isOwner(userId) && dataMatchesOwner(userId);
-          allow update: if isExistingOwner(userId) && dataMatchesOwner(userId) && request.resource.data.userProfileId == resource.data.userProfileId;
-          allow delete: if isExistingOwner(userId);
+        match /booking_items/{bookedItemId} {
+          allow read, write: if isOwner(userId);
         }
       }
     }
@@ -82,24 +59,16 @@ service cloud.firestore {
      * @description Global catalogs (Flights, Hotels, Activities)
      */
     match /flights/{flightId} {
-      allow get, list: if isSignedIn();
-      allow create, update, delete: if isAdmin();
+      allow read: if isSignedIn();
+      allow write: if false; // Admin only via console
     }
 
     match /hotels/{hotelId} {
-      allow get, list: if isSignedIn();
-      allow create, update, delete: if isAdmin();
+      allow read: if isSignedIn();
+      allow write: if false;
     }
 
     match /activities/{activityId} {
-      allow get, list: if isSignedIn();
-      allow create, update, delete: if isAdmin();
-    }
-
-    /**
-     * @description Internal administrative roles.
-     */
-    match /roles_admin/{adminId} {
       allow read: if isSignedIn();
       allow write: if false;
     }

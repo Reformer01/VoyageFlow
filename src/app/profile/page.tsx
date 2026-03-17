@@ -46,10 +46,18 @@ export default function ProfilePage() {
   useEffect(() => {
     if (profile) {
       setFormData({
-        firstName: profile.firstName || user?.displayName?.split(' ')[0] || '',
-        lastName: profile.lastName || user?.displayName?.split(' ')[1] || '',
+        firstName: profile.firstName || '',
+        lastName: profile.lastName || '',
         email: profile.email || user?.email || '',
         phoneNumber: profile.phoneNumber || ''
+      });
+    } else if (user) {
+      const names = user.displayName?.split(' ') || ['', ''];
+      setFormData({
+        firstName: names[0] || '',
+        lastName: names.slice(1).join(' ') || '',
+        email: user.email || '',
+        phoneNumber: user.phoneNumber || ''
       });
     }
   }, [profile, user]);
@@ -61,12 +69,12 @@ export default function ProfilePage() {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!profileRef) return;
+    if (!profileRef || !user) return;
 
     setSaving(true);
     const updateData = {
       ...formData,
-      id: user?.uid,
+      id: user.uid,
       updatedAt: serverTimestamp(),
       createdAt: profile?.createdAt || serverTimestamp()
     };
@@ -98,8 +106,8 @@ export default function ProfilePage() {
   if (!user) return null;
 
   return (
-    <div className="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen font-display">
-      <header className="sticky top-0 z-50 w-full border-b border-slate-200 dark:border-slate-800 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md">
+    <div className="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen font-display transition-colors duration-300">
+      <header className="sticky top-0 z-50 w-full border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between gap-8">
             <Link href="/" className="flex items-center gap-2 text-primary">
@@ -178,6 +186,7 @@ export default function ProfilePage() {
                       onChange={(e) => setFormData({...formData, email: e.target.value})}
                       placeholder="name@example.com"
                       type="email"
+                      disabled
                     />
                   </div>
                   <div className="space-y-2">
