@@ -50,7 +50,7 @@ export default function ProfilePage() {
             <nav className="hidden md:flex items-center gap-6">
               <Link className="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors text-sm font-medium" href="/search">Explore</Link>
               <Link className="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors text-sm font-medium" href="/profile/bookings">Bookings</Link>
-              <Link className="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors text-sm font-medium" href="#">Support</Link>
+              <Link className="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors text-sm font-medium" href="/support">Support</Link>
             </nav>
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-full bg-primary/20 border-2 border-primary overflow-hidden">

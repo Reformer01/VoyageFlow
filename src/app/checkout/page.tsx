@@ -66,7 +66,7 @@ export default function CheckoutPage() {
               <nav className="hidden md:flex items-center gap-8">
                 <Link className="text-slate-600 dark:text-slate-300 text-sm font-medium hover:text-primary transition-colors" href="/">Home</Link>
                 <Link className="text-slate-600 dark:text-slate-300 text-sm font-medium hover:text-primary transition-colors" href={user ? "/profile/bookings" : "/auth/login"}>Bookings</Link>
-                <Link className="text-slate-600 dark:text-slate-300 text-sm font-medium hover:text-primary transition-colors" href="#">Support</Link>
+                <Link className="text-slate-600 dark:text-slate-300 text-sm font-medium hover:text-primary transition-colors" href="/support">Support</Link>
               </nav>
               <Link href={user ? "/profile" : "/auth/login"}>
                 <button className="flex items-center justify-center rounded-full size-10 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">

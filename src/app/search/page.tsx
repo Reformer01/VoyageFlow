@@ -83,8 +83,8 @@ export default function SearchPage() {
             <nav className="hidden lg:flex items-center gap-8">
               <Link className={`text-sm font-semibold transition-colors ${type === 'hotel' ? 'text-primary' : 'hover:text-primary text-slate-600 dark:text-slate-300'}`} href="/search?type=hotel">Hotels</Link>
               <Link className={`text-sm font-semibold transition-colors ${type === 'flight' ? 'text-primary' : 'hover:text-primary text-slate-600 dark:text-slate-300'}`} href="/search?type=flight">Flights</Link>
-              <Link className="text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-primary transition-colors" href={user ? "/profile/bookings" : "/auth/login"}>Trips</Link>
-              <Link className={`text-sm font-semibold transition-colors ${type === 'deal' ? 'text-primary' : 'hover:text-primary text-slate-600 dark:text-slate-300'}`} href="/search?type=deal">Deals</Link>
+              <Link className="text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-primary transition-colors" href={user ? "/profile/bookings" : "/auth/login"}>My Bookings</Link>
+              <Link className="text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-primary transition-colors" href="/support">Support</Link>
             </nav>
             <div className="flex gap-3">
               <Link href="/basket" className="relative flex items-center justify-center rounded-xl size-10 bg-slate-200/50 dark:bg-primary/10 hover:bg-primary/20 transition-colors">

@@ -1,3 +1,4 @@
+
 "use client";
 
 import Image from 'next/image';
@@ -27,9 +28,9 @@ export default function Home() {
             <h2 className="text-slate-900 dark:text-slate-100 text-xl font-black leading-tight tracking-tight">TravelEase</h2>
           </Link>
           <nav className="hidden md:flex items-center gap-8">
-            <Link className="text-sm font-semibold hover:text-primary transition-colors" href="/search?type=flight">Discover</Link>
-            <Link className="text-sm font-semibold hover:text-primary transition-colors" href={user ? "/profile/bookings" : "/auth/login"}>Trips</Link>
-            <Link className="text-sm font-semibold hover:text-primary transition-colors" href="#">Support</Link>
+            <Link className="text-sm font-semibold hover:text-primary transition-colors text-slate-600 dark:text-slate-300" href="/search?type=flight">Discover</Link>
+            <Link className="text-sm font-semibold hover:text-primary transition-colors text-slate-600 dark:text-slate-300" href={user ? "/profile/bookings" : "/auth/login"}>My Trips</Link>
+            <Link className="text-sm font-semibold hover:text-primary transition-colors text-slate-600 dark:text-slate-300" href="/support">Support</Link>
           </nav>
           <div className="flex gap-3">
             <Link href={user ? "/profile" : "/auth/login"}>
@@ -78,7 +79,7 @@ export default function Home() {
                   </div>
                   <div className="flex-1 flex items-center px-4 py-3 border-b lg:border-b-0 lg:border-r border-slate-100 dark:border-slate-800">
                     <span className="material-symbols-outlined text-primary mr-3">calendar_month</span>
-                    <input className="w-full bg-transparent border-none focus:ring-0 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 p-0 h-auto" placeholder="Dates" type="text" onFocus={(e) => e.target.type = 'date'} onBlur={(e) => e.target.type = 'text'} />
+                    <input className="w-full bg-transparent border-none focus:ring-0 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 p-0 h-auto" placeholder="Dates" type="text" />
                   </div>
                   <div className="flex-1 flex items-center px-4 py-3">
                     <span className="material-symbols-outlined text-primary mr-3">group</span>
@@ -203,15 +204,15 @@ export default function Home() {
             </div>
             <div className="flex flex-col gap-4">
               <h4 className="text-white font-bold uppercase text-xs tracking-widest">Company</h4>
-              <Link className="text-sm hover:text-primary transition-colors" href="#">About Us</Link>
-              <Link className="text-sm hover:text-primary transition-colors" href="#">Careers</Link>
-              <Link className="text-sm hover:text-primary transition-colors" href="#">Press</Link>
+              <Link className="text-sm hover:text-primary transition-colors" href="/support">About Us</Link>
+              <Link className="text-sm hover:text-primary transition-colors" href="/support">Careers</Link>
+              <Link className="text-sm hover:text-primary transition-colors" href="/support">Press</Link>
             </div>
             <div className="flex flex-col gap-4">
               <h4 className="text-white font-bold uppercase text-xs tracking-widest">Support</h4>
-              <Link className="text-sm hover:text-primary transition-colors" href="#">Help Center</Link>
-              <Link className="text-sm hover:text-primary transition-colors" href="#">Terms of Service</Link>
-              <Link className="text-sm hover:text-primary transition-colors" href="#">Privacy Policy</Link>
+              <Link className="text-sm hover:text-primary transition-colors" href="/support">Help Center</Link>
+              <Link className="text-sm hover:text-primary transition-colors" href="/support">Terms of Service</Link>
+              <Link className="text-sm hover:text-primary transition-colors" href="/support">Privacy Policy</Link>
             </div>
             <div className="flex flex-col gap-4">
               <h4 className="text-white font-bold uppercase text-xs tracking-widest">Connect</h4>
@@ -219,7 +220,7 @@ export default function Home() {
                 <Link className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-primary hover:text-white transition-all" href="#">
                   <span className="material-symbols-outlined">share</span>
                 </Link>
-                <Link className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-primary hover:text-white transition-all" href="#">
+                <Link className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-primary hover:text-white transition-all" href="mailto:support@travelease.com">
                   <span className="material-symbols-outlined">mail</span>
                 </Link>
               </div>
