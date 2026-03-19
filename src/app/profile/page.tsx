@@ -167,7 +167,7 @@ export default function ProfilePage() {
             <div className="flex items-center gap-8">
               <Link href="/" className="flex items-center gap-2 text-primary">
                 <span className="material-symbols-outlined text-3xl font-bold">flight_takeoff</span>
-                <h2 className="text-slate-900 dark:text-slate-100 text-xl font-bold tracking-tight">VoyageFlow</h2>
+                <h2 className="text-slate-900 dark:text-slate-100 text-xl font-bold tracking-tight">TravelEase</h2>
               </Link>
               <nav className="hidden md:flex items-center gap-6">
                 <Link className="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors text-sm font-medium" href="/search">Explore</Link>
