@@ -74,14 +74,23 @@ export default function CheckoutPage() {
         }),
       });
 
-      const initJson = await initRes.json();
+      const initRaw = await initRes.text();
+      const initJson = initRaw
+        ? (() => {
+            try {
+              return JSON.parse(initRaw);
+            } catch {
+              return { raw: initRaw };
+            }
+          })()
+        : {};
       if (!initRes.ok) {
-        toast({ variant: "destructive", title: "Payment Error", description: initJson?.error || 'Unable to start payment.' });
+        toast({ variant: "destructive", title: "Payment Error", description: (initJson as any)?.error || 'Unable to start payment.' });
         setLoading(false);
         return;
       }
 
-      const authorizationUrl = initJson.authorizationUrl as string | undefined;
+      const authorizationUrl = (initJson as any).authorizationUrl as string | undefined;
       if (!authorizationUrl) {
         toast({ variant: "destructive", title: "Payment Error", description: 'Missing Paystack authorization URL.' });
         setLoading(false);
@@ -161,15 +170,9 @@ export default function CheckoutPage() {
                   <h2 className="text-lg font-bold">Passenger Details</h2>
                 </div>
                 <div className="p-6 space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-sm font-medium text-slate-700 dark:text-slate-300">First Name</label>
-                      <input required className="rounded-lg border-slate-300 dark:border-slate-700 bg-transparent focus:border-primary focus:ring-primary h-10 px-3 text-sm" placeholder="John" type="text" defaultValue={(user?.user_metadata?.full_name as string | undefined)?.split(' ')[0] || ''} />
-                    </div>
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Last Name</label>
-                      <input required className="rounded-lg border-slate-300 dark:border-slate-700 bg-transparent focus:border-primary focus:ring-primary h-10 px-3 text-sm" placeholder="Doe" type="text" defaultValue={((user?.user_metadata?.full_name as string | undefined)?.split(' ')[1]) || ''} />
-                    </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Full Name</label>
+                    <input required className="rounded-lg border-slate-300 dark:border-slate-700 bg-transparent focus:border-primary focus:ring-primary h-10 px-3 text-sm" placeholder="John Doe" type="text" defaultValue={(user?.user_metadata?.full_name as string | undefined) || ''} />
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="flex flex-col gap-1.5">
@@ -181,6 +184,70 @@ export default function CheckoutPage() {
                       <input required className="rounded-lg border-slate-300 dark:border-slate-700 bg-transparent focus:border-primary focus:ring-primary h-10 px-3 text-sm" placeholder="+1 000 000 0000" type="tel" />
                     </div>
                   </div>
+                </div>
+              </section>
+
+              <section className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
+                <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center gap-3">
+                  <span className="material-symbols-outlined text-primary">people</span>
+                  <h2 className="text-lg font-bold">Number of Guests</h2>
+                </div>
+                <div className="p-6 space-y-4">
+                  <div className="grid grid-cols-3 gap-4">
+                    {[1, 2, 3].map((count) => (
+                      <label key={count} className="flex items-center gap-2 p-3 border border-slate-200 dark:border-slate-700 rounded-lg cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                        <input type="radio" name="guestCount" value={count} defaultChecked={count === 1} className="cursor-pointer" />
+                        <span className="font-medium">{count} {count === 1 ? 'Guest' : 'Guests'}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              </section>
+
+              <section className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
+                <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center gap-3">
+                  <span className="material-symbols-outlined text-primary">airline_seat_flat</span>
+                  <h2 className="text-lg font-bold">Booking Class</h2>
+                </div>
+                <div className="p-6 space-y-4">
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <label className="flex items-center gap-3 p-4 border border-slate-200 dark:border-slate-700 rounded-lg cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors flex-1">
+                      <input type="radio" name="bookingClass" value="economy" defaultChecked className="cursor-pointer" />
+                      <span className="font-medium">Economy</span>
+                    </label>
+                    <label className="flex items-center gap-3 p-4 border border-slate-200 dark:border-slate-700 rounded-lg cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors flex-1">
+                      <input type="radio" name="bookingClass" value="first" className="cursor-pointer" />
+                      <span className="font-medium">First Class <span className="text-xs text-primary">(+₦5,000)</span></span>
+                    </label>
+                  </div>
+                </div>
+              </section>
+
+              <section className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
+                <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center gap-3">
+                  <span className="material-symbols-outlined text-primary">directions_car</span>
+                  <h2 className="text-lg font-bold">Car Rental</h2>
+                </div>
+                <div className="p-6 space-y-4">
+                  <label className="flex items-center gap-3 p-4 border border-slate-200 dark:border-slate-700 rounded-lg cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                    <input type="checkbox" name="carRental" value="true" className="cursor-pointer" />
+                    <span className="font-medium">Add Car Rental <span className="text-xs text-primary">(+₦15,000)</span></span>
+                  </label>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Rent a car at your destination. Includes insurance and unlimited mileage.</p>
+                </div>
+              </section>
+
+              <section className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
+                <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center gap-3">
+                  <span className="material-symbols-outlined text-primary">verified_user</span>
+                  <h2 className="text-lg font-bold">Travel Insurance</h2>
+                </div>
+                <div className="p-6 space-y-4">
+                  <label className="flex items-center gap-3 p-4 border border-slate-200 dark:border-slate-700 rounded-lg cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                    <input type="checkbox" name="travelInsurance" value="true" className="cursor-pointer" />
+                    <span className="font-medium">Add Travel Insurance <span className="text-xs text-primary">(+₦8,000)</span></span>
+                  </label>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Comprehensive coverage for trip cancellation, medical emergencies, and lost baggage.</p>
                 </div>
               </section>
 

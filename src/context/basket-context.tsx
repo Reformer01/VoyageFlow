@@ -188,9 +188,9 @@ export function BasketProvider({ children }: { children: React.ReactNode }) {
         },
         body: JSON.stringify({ item }),
       });
-      const json = await response.json();
-      if (response.ok && Array.isArray(json.items)) {
-        setItems(json.items);
+      const json = await safeReadJson(response);
+      if (response.ok && Array.isArray((json as any)?.items)) {
+        setItems((json as any).items);
       }
     } catch (error) {
       console.error('Failed to add item to basket', error);
@@ -211,9 +211,9 @@ export function BasketProvider({ children }: { children: React.ReactNode }) {
         method: 'DELETE',
         headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
       });
-      const json = await response.json();
-      if (response.ok && Array.isArray(json.items)) {
-        setItems(json.items);
+      const json = await safeReadJson(response);
+      if (response.ok && Array.isArray((json as any)?.items)) {
+        setItems((json as any).items);
       }
     } catch (error) {
       console.error('Failed to remove basket item', error);
@@ -233,9 +233,9 @@ export function BasketProvider({ children }: { children: React.ReactNode }) {
         method: 'DELETE',
         headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
       });
-      const json = await response.json();
+      const json = await safeReadJson(response);
       if (response.ok) {
-        setItems(json.items || []);
+        setItems((json as any)?.items || []);
       }
     } catch (error) {
       console.error('Failed to clear basket', error);

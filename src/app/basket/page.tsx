@@ -42,13 +42,22 @@ export default function BasketPage() {
         },
         body: JSON.stringify({ items }),
       });
-      const json = await res.json();
+      const raw = await res.text();
+      const json = raw
+        ? (() => {
+            try {
+              return JSON.parse(raw);
+            } catch {
+              return { raw };
+            }
+          })()
+        : {};
       if (!res.ok) {
         console.error('Availability verify failed', json);
         setIsVerifying(false);
         return;
       }
-      const token = json.token as string;
+      const token = (json as any).token as string;
       router.push(`/checkout?availabilityToken=${encodeURIComponent(token)}`);
     } catch (e) {
       console.error('Availability verify error', e);
@@ -298,7 +307,7 @@ export default function BasketPage() {
 
               <div className="flex gap-4 items-center p-4 bg-primary/5 rounded-xl border border-primary/20">
                 <span className="material-symbols-outlined text-primary">info</span>
-                <p className="text-sm text-slate-700 dark:text-slate-300">Prices and availability are subject to change until booking is completed. Use 'Verify Availability' to lock in your selections.</p>
+                <p className="text-sm text-slate-700 dark:text-slate-300">Prices and availability are subject to change until booking is completed. Use 'Check Out' to proceed to payment.</p>
               </div>
             </div>
 
@@ -328,12 +337,12 @@ export default function BasketPage() {
                     {isVerifying ? (
                       <>
                         <span className="material-symbols-outlined animate-spin">refresh</span>
-                        Verifying...
+                        Processing...
                       </>
                     ) : (
                       <>
-                        <span className="material-symbols-outlined">verified_user</span>
-                        Verify Availability
+                        <span className="material-symbols-outlined">shopping_cart</span>
+                        Check Out
                       </>
                     )}
                   </button>

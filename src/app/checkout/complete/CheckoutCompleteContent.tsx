@@ -61,14 +61,23 @@ export default function CheckoutCompleteContent() {
           body: JSON.stringify({ reference }),
         });
 
-        const verifyJson = await verifyRes.json();
+        const verifyRaw = await verifyRes.text();
+        const verifyJson = verifyRaw
+          ? (() => {
+              try {
+                return JSON.parse(verifyRaw);
+              } catch {
+                return { raw: verifyRaw };
+              }
+            })()
+          : {};
         if (!verifyRes.ok) {
           setStatus('failed');
-          setMessage(verifyJson?.error || 'Unable to verify payment.');
+          setMessage((verifyJson as any)?.error || 'Unable to verify payment.');
           return;
         }
 
-        if (verifyJson.status !== 'succeeded') {
+        if ((verifyJson as any).status !== 'succeeded') {
           setStatus('failed');
           setMessage('Payment was not successful. Please return to your basket to retry.');
           return;
@@ -87,37 +96,46 @@ export default function CheckoutCompleteContent() {
           body: JSON.stringify({ paymentId: reference }),
         });
 
-        const finalizeJson = await finalizeRes.json();
+        const finalizeRaw = await finalizeRes.text();
+        const finalizeJson = finalizeRaw
+          ? (() => {
+              try {
+                return JSON.parse(finalizeRaw);
+              } catch {
+                return { raw: finalizeRaw };
+              }
+            })()
+          : {};
 
         // Handle idempotency - booking already exists
-        if (finalizeRes.ok && finalizeJson.alreadyExists) {
-          setBookingRef(finalizeJson.bookingReference);
+        if (finalizeRes.ok && (finalizeJson as any).alreadyExists) {
+          setBookingRef((finalizeJson as any).bookingReference);
           setStatus('success');
           setStep('redirect');
           setMessage('Your booking was already confirmed! Redirecting...');
           setTimeout(() => {
-            router.replace(`/confirmation/${encodeURIComponent(finalizeJson.bookingReference)}`);
+            router.replace(`/confirmation/${encodeURIComponent((finalizeJson as any).bookingReference)}`);
           }, 2000);
           return;
         }
 
         if (!finalizeRes.ok) {
           setStatus('failed');
-          setMessage(finalizeJson?.error || 'Unable to finalize booking. Please contact support with reference: ' + reference);
+          setMessage((finalizeJson as any)?.error || 'Unable to finalize booking. Please contact support with reference: ' + reference);
           return;
         }
 
-        setBookingRef(finalizeJson.bookingReference);
+        setBookingRef((finalizeJson as any).bookingReference);
         setStatus('success');
         setStep('redirect');
         setMessage('Payment verified and booking confirmed! Redirecting...');
         toast({
           title: 'Booking Confirmed',
-          description: `Your booking ${finalizeJson.bookingReference} has been confirmed.`,
+          description: `Your booking ${(finalizeJson as any).bookingReference} has been confirmed.`,
         });
 
         setTimeout(() => {
-          router.replace(`/confirmation/${encodeURIComponent(finalizeJson.bookingReference)}`);
+          router.replace(`/confirmation/${encodeURIComponent((finalizeJson as any).bookingReference)}`);
         }, 2000);
       } catch (e: any) {
         console.error('Checkout complete error', e);

@@ -38,19 +38,30 @@ export default function ConfirmationPage() {
       const res = await fetch(`/api/bookings/by-reference?reference=${encodeURIComponent(bookingId)}`, {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
-      const json = await res.json();
+      const raw = await res.text();
+      const json = raw
+        ? (() => {
+            try {
+              return JSON.parse(raw);
+            } catch {
+              return { raw };
+            }
+          })()
+        : {};
       if (!res.ok) {
         console.error('Failed to fetch booking', json);
         setLoading(false);
-        setError(json.error);
+        setError((json as any).error);
         return;
       }
 
       setPurchase({
-        items: json.items?.map((it: any) => it.snapshot) || [],
-        total: json.booking?.total_amount,
-        date: json.booking?.booking_date ? new Date(json.booking.booking_date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : undefined,
-        booking: json.booking,
+        items: (json as any).items?.map((it: any) => it.snapshot) || [],
+        total: (json as any).booking?.total_amount,
+        date: (json as any).booking?.booking_date
+          ? new Date((json as any).booking.booking_date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+          : undefined,
+        booking: (json as any).booking,
       });
       setLoading(false);
     };

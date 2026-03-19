@@ -66,12 +66,21 @@ export default function ProfilePage() {
         const res = await fetch('/api/profile/me', {
           headers: { Authorization: `Bearer ${accessToken}` },
         });
-        const json = await res.json();
+        const raw = await res.text();
+        const json = raw
+          ? (() => {
+              try {
+                return JSON.parse(raw);
+              } catch {
+                return { raw };
+              }
+            })()
+          : {};
         if (!res.ok) {
           console.error('Failed to load profile', json);
           return;
         }
-        setProfile(json.profile);
+        setProfile((json as any).profile);
       } catch (e) {
         console.error('Profile load error', e);
       } finally {
@@ -114,13 +123,22 @@ export default function ProfilePage() {
           homeAddress: formData.homeAddress,
         }),
       });
-      const json = await res.json();
+      const raw = await res.text();
+      const json = raw
+        ? (() => {
+            try {
+              return JSON.parse(raw);
+            } catch {
+              return { raw };
+            }
+          })()
+        : {};
       if (!res.ok) {
-        toast({ variant: 'destructive', title: 'Error', description: json?.error || 'Unable to save profile.' });
+        toast({ variant: 'destructive', title: 'Error', description: (json as any)?.error || 'Unable to save profile.' });
         setSaving(false);
         return;
       }
-      setProfile(json.profile);
+      setProfile((json as any).profile);
       toast({ title: 'Profile Updated', description: 'Your changes have been saved successfully.' });
       setSaving(false);
     } catch (e: any) {

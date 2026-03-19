@@ -130,7 +130,16 @@ export default function BookingDetailsPage() {
         },
         body: JSON.stringify({ reference: id }),
       });
-      const json = await res.json();
+      const raw = await res.text();
+      const json = raw
+        ? (() => {
+            try {
+              return JSON.parse(raw);
+            } catch {
+              return { raw };
+            }
+          })()
+        : {};
       if (!res.ok) {
         console.error('Modify booking failed', json);
         setIsModifying(false);
