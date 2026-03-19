@@ -32,7 +32,11 @@ export default function BookingDetailsPage() {
   const [isItemsLoading, setIsItemsLoading] = useState(false);
 
   const reloadBooking = useCallback(async () => {
-    if (!user || !id) return;
+    console.log('reloadBooking: starting refetch for booking', id);
+    if (!user || !id) {
+      console.log('reloadBooking: skipped - missing user or id');
+      return;
+    }
     setIsBookingLoading(true);
     setIsItemsLoading(true);
     try {
@@ -41,6 +45,7 @@ export default function BookingDetailsPage() {
       const accessToken = data.session?.access_token;
       if (!accessToken) return;
 
+      console.log('reloadBooking: fetching detail');
       const res = await fetch(`/api/bookings/detail?reference=${encodeURIComponent(id as string)}`, {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
@@ -58,6 +63,7 @@ export default function BookingDetailsPage() {
         return;
       }
 
+      console.log('reloadBooking: got booking data', json.booking);
       setBooking(json.booking);
       setItems((json.items || []).map((it: any) => it.snapshot));
     } catch (e) {
@@ -65,6 +71,7 @@ export default function BookingDetailsPage() {
     } finally {
       setIsBookingLoading(false);
       setIsItemsLoading(false);
+      console.log('reloadBooking: finished loading');
     }
   }, [auth, id, user]);
 
