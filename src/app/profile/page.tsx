@@ -211,7 +211,6 @@ export default function ProfilePage() {
                 <h3 className="mt-4 text-lg font-bold truncate max-w-full text-center px-2">
                   {formData.firstName || formData.lastName ? `${formData.firstName} ${formData.lastName}` : ((user.user_metadata?.full_name as string | undefined) || 'Explorer')}
                 </h3>
-                <p className="text-sm text-primary font-medium">Gold Member</p>
               </div>
               <nav className="space-y-1">
                 <Link href="/profile" className="flex items-center gap-3 px-4 py-3 rounded-xl bg-primary text-white font-medium">
