@@ -60,7 +60,20 @@ export async function POST(request: NextRequest) {
 
     if (updateErr) {
       if (isMissingDeletedAtColumn(updateErr)) {
-        const { data: statusUpdated, error: statusUpdateErr } = await supabase
+        let adminClient;
+        try {
+          adminClient = createSupabaseAdminClient();
+        } catch (e: any) {
+          return NextResponse.json(
+            {
+              error: 'Delete failed and admin client unavailable.',
+              detail: e?.message || 'Missing SUPABASE_SERVICE_ROLE_KEY',
+            },
+            { status: 500 }
+          );
+        }
+
+        const { data: statusUpdated, error: statusUpdateErr } = await adminClient
           .from('bookings')
           .update({ status: 'deleted' })
           .eq('id', booking.id)
@@ -69,21 +82,20 @@ export async function POST(request: NextRequest) {
           .maybeSingle();
 
         if (!statusUpdateErr) {
-          // If status update succeeded but returned null, re-fetch to verify
           if (!statusUpdated) {
-            const { data: refetched, error: refetchErr } = await supabase
+            const { data: refetched, error: refetchErr } = await adminClient
               .from('bookings')
               .select('*')
               .eq('id', booking.id)
               .eq('user_id', user.id)
               .maybeSingle();
             if (!refetchErr && refetched?.status === 'deleted') {
-              return NextResponse.json({ ok: true, deletedWith: 'user_status', booking: refetched });
+              return NextResponse.json({ ok: true, deletedWith: 'admin_status', booking: refetched });
             }
-            // If refetch fails or status is not 'deleted', fall through to hard delete
-          } else {
-            return NextResponse.json({ ok: true, deletedWith: 'user_status', booking: statusUpdated });
+            return NextResponse.json({ error: 'Delete did not affect any rows' }, { status: 409 });
           }
+
+          return NextResponse.json({ ok: true, deletedWith: 'admin_status', booking: statusUpdated });
         }
 
         // Hard delete fallback when status update didn't persist
@@ -124,9 +136,9 @@ export async function POST(request: NextRequest) {
       }
 
       // If soft delete fails with user client, try admin client
-      let admin;
+      let adminClient;
       try {
-        admin = createSupabaseAdminClient();
+        adminClient = createSupabaseAdminClient();
       } catch (e: any) {
         return NextResponse.json(
           {
@@ -137,7 +149,7 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      const { data: adminUpdated, error: adminUpdateErr } = await admin
+      const { data: adminUpdated, error: adminUpdateErr } = await adminClient
         .from('bookings')
         .update({ deleted_at: new Date().toISOString() })
         .eq('id', booking.id)

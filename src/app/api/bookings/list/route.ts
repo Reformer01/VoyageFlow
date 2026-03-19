@@ -30,6 +30,7 @@ export async function GET(request: NextRequest) {
         .from('bookings')
         .select('*')
         .eq('user_id', user.id)
+        .neq('status', 'deleted')
         .order('created_at', { ascending: false });
 
     const { data, error: listErr } = await buildBaseQuery().is('deleted_at', null);
@@ -41,7 +42,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: listErr.message }, { status: 500 });
     }
 
-    const { data: data2, error: listErr2 } = await buildBaseQuery().neq('status', 'deleted');
+    const { data: data2, error: listErr2 } = await buildBaseQuery();
     if (listErr2) {
       return NextResponse.json({ error: listErr2.message }, { status: 500 });
     }

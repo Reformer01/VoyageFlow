@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireSupabaseUser } from '@/lib/supabase-auth';
-import { createSupabaseRouteClient } from '@/lib/supabase-route';
+import { createSupabaseAdminClient, createSupabaseRouteClient } from '@/lib/supabase-route';
 
 type ModifyUpdates = {
   checkIn?: string;
@@ -55,7 +55,20 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing updates.checkIn' }, { status: 400 });
     }
 
-    const { data: updated, error: updateErr } = await supabase
+    let admin;
+    try {
+      admin = createSupabaseAdminClient();
+    } catch (e: any) {
+      return NextResponse.json(
+        {
+          error: 'Modify failed and admin client unavailable.',
+          detail: e?.message || 'Missing SUPABASE_SERVICE_ROLE_KEY',
+        },
+        { status: 500 }
+      );
+    }
+
+    const { data: updated, error: updateErr } = await admin
       .from('bookings')
       .update({ booking_date: nextBookingDate })
       .eq('id', booking.id)
@@ -63,9 +76,8 @@ export async function POST(request: NextRequest) {
       .select('*')
       .maybeSingle();
 
-    if (updateErr) {
-      return NextResponse.json({ error: updateErr.message }, { status: 500 });
-    }
+    if (updateErr) return NextResponse.json({ error: updateErr.message }, { status: 500 });
+    if (!updated) return NextResponse.json({ error: 'Modify did not affect any rows' }, { status: 409 });
 
     return NextResponse.json({ ok: true, booking: updated });
   } catch (e) {
