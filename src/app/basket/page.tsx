@@ -70,19 +70,19 @@ export default function BasketPage() {
       <div className="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen">
       <nav className="sticky top-0 z-50 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16 items-center">
+          <div className="flex justify-between h-16 items-center gap-3 md:gap-8">
             <Link href="/" className="flex items-center gap-2">
               <div className="bg-primary p-1.5 rounded-lg text-white">
                 <span className="material-symbols-outlined block text-2xl">flight_takeoff</span>
               </div>
               <span className="text-xl font-bold tracking-tight text-slate-900 dark:text-white uppercase">TravelEase</span>
             </Link>
-            <div className="hidden md:flex items-center gap-8">
+            <div className="hidden md:flex items-center gap-4 md:gap-8">
               <Link className="text-sm font-semibold hover:text-primary transition-colors text-slate-600 dark:text-slate-300" href="/">Home</Link>
               <Link className="text-sm font-semibold hover:text-primary transition-colors text-slate-600 dark:text-slate-300" href={user ? "/profile/bookings" : loginFor('/profile/bookings')}>Bookings</Link>
               <Link className="text-sm font-semibold text-primary" href="/basket">Basket</Link>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3 md:gap-4">
               <button className="p-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors">
                 <span className="material-symbols-outlined">notifications</span>
               </button>
@@ -98,7 +98,7 @@ export default function BasketPage() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex flex-col gap-2 mb-8">
-          <nav className="flex text-sm text-slate-500 dark:text-slate-400 gap-2 items-center mb-2">
+          <nav className="flex text-sm text-slate-500 dark:text-slate-400 gap-2 items-center mb-2 min-w-0 overflow-x-auto whitespace-nowrap">
             <Link className="hover:text-primary" href="/search">Search</Link>
             <span className="material-symbols-outlined text-xs">chevron_right</span>
             <span className="text-slate-900 dark:text-slate-200 font-medium">Basket</span>
@@ -122,7 +122,7 @@ export default function BasketPage() {
         )}
 
         {isLoading ? (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-8">
             <div className="lg:col-span-2 space-y-4">
               {[1, 2, 3].map((i) => (
                 <div key={i} className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 animate-pulse">
@@ -156,7 +156,7 @@ export default function BasketPage() {
             </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-8">
             <div className="lg:col-span-2 space-y-6">
               {/* Flights Section */}
               {flights.length > 0 && (

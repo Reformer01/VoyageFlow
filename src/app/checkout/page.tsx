@@ -131,7 +131,7 @@ export default function CheckoutPage() {
               </div>
               <h2 className="text-slate-900 dark:text-slate-100 text-xl font-bold tracking-tight">TravelEase</h2>
             </Link>
-            <div className="flex flex-1 justify-end gap-6 items-center">
+            <div className="flex flex-1 justify-end gap-3 md:gap-6 items-center">
               <nav className="hidden md:flex items-center gap-8">
                 <Link className="text-slate-600 dark:text-slate-300 text-sm font-medium hover:text-primary transition-colors" href="/">Home</Link>
                 <Link className="text-slate-600 dark:text-slate-300 text-sm font-medium hover:text-primary transition-colors" href={user ? "/profile/bookings" : loginFor('/profile/bookings')}>My Trips</Link>
@@ -148,15 +148,17 @@ export default function CheckoutPage() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <nav className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-8">
-          <Link className="hover:text-primary" href="/search">Search Results</Link>
-          <span className="material-symbols-outlined text-xs">chevron_right</span>
-          <span className="hover:text-primary">Passenger Details</span>
-          <span className="material-symbols-outlined text-xs">chevron_right</span>
-          <span className="text-slate-900 dark:text-slate-100 font-semibold">Secure Payment</span>
+        <nav className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-sm text-slate-500 dark:text-slate-400 mb-8">
+          <div className="flex items-center gap-2 min-w-0 overflow-x-auto whitespace-nowrap">
+            <Link className="hover:text-primary" href="/search">Search Results</Link>
+            <span className="material-symbols-outlined text-xs">chevron_right</span>
+            <span className="hover:text-primary">Passenger Details</span>
+            <span className="material-symbols-outlined text-xs">chevron_right</span>
+            <span className="text-slate-900 dark:text-slate-100 font-semibold">Secure Payment</span>
+          </div>
         </nav>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-8">
           <div className="lg:col-span-8 space-y-8">
             <div className="flex flex-col gap-1">
               <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white">Checkout</h1>

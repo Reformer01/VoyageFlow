@@ -198,9 +198,9 @@ export default function BookingDetailsPage() {
         <div className="relative flex min-h-screen w-full flex-col overflow-x-hidden">
           <div className="layout-container flex h-full grow flex-col">
             {/* Header */}
-            <header className="sticky top-0 z-50 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-4 md:px-10 py-4">
-              <div className="max-w-5xl mx-auto flex items-center justify-between">
-                <div className="flex items-center gap-4">
+            <header className="sticky top-0 z-50 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-4 sm:px-6 md:px-10 py-4">
+              <div className="max-w-5xl mx-auto flex items-center justify-between gap-3 md:gap-4">
+                <div className="flex items-center gap-3 md:gap-4">
                   <button 
                     onClick={() => router.push('/profile/bookings')}
                     className="p-2 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-full transition-colors"
@@ -224,7 +224,7 @@ export default function BookingDetailsPage() {
             </header>
 
             {/* Main Content */}
-            <main className="flex-1 max-w-5xl mx-auto w-full px-4 py-6">
+            <main className="flex-1 max-w-5xl mx-auto w-full px-4 sm:px-6 py-6">
               {/* Hero Image */}
               <div className="relative w-full aspect-[21/9] md:aspect-[3/1] rounded-xl overflow-hidden mb-8 group">
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10"></div>
@@ -246,7 +246,7 @@ export default function BookingDetailsPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-8">
                 {/* Left Column */}
                 <div className="lg:col-span-2 space-y-8">
                   {/* Check-in/Check-out Dates */}

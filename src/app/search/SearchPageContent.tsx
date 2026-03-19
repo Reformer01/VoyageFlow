@@ -91,9 +91,9 @@ export default function SearchPageContent() {
 
   return (
     <div className="relative flex min-h-screen flex-col overflow-x-hidden font-display bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 transition-colors duration-200">
-      <header className="sticky top-0 z-50 w-full border-b border-primary/10 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md px-6 lg:px-20 py-3">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-8">
-          <div className="flex items-center gap-8">
+      <header className="sticky top-0 z-50 w-full border-b border-primary/10 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md px-4 sm:px-6 lg:px-20 py-3">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 md:gap-8">
+          <div className="flex items-center gap-4 md:gap-8">
             <Link href="/" className="flex items-center gap-2 text-primary">
               <span className="material-symbols-outlined text-3xl font-bold">flight_takeoff</span>
               <h2 className="text-xl font-bold leading-tight tracking-tight text-slate-900 dark:text-slate-100">TravelEase</h2>
@@ -111,7 +111,7 @@ export default function SearchPageContent() {
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-3 md:gap-6">
             <nav className="hidden lg:flex items-center gap-8">
               <Link
                 className={`text-sm font-semibold transition-colors ${type === 'hotel' ? 'text-primary' : 'hover:text-primary text-slate-600 dark:text-slate-300'}`}
@@ -152,8 +152,8 @@ export default function SearchPageContent() {
         </div>
       </header>
 
-      <main className="mx-auto flex w-full max-w-7xl flex-1 gap-8 px-6 lg:px-20 py-8">
-        <aside className="hidden w-72 shrink-0 flex-col gap-8 lg:flex">
+      <main className="mx-auto flex w-full max-w-7xl flex-1 gap-4 md:gap-8 px-4 sm:px-6 lg:px-20 py-8">
+        <aside className="hidden w-72 shrink-0 flex-col gap-4 md:gap-8 lg:flex">
           <div className="flex flex-col gap-6 rounded-xl border border-primary/10 bg-white dark:bg-primary/5 p-6 shadow-sm">
             <div>
               <h3 className="text-lg font-bold">Filters</h3>
@@ -183,9 +183,9 @@ export default function SearchPageContent() {
           </div>
         </aside>
 
-        <section className="flex flex-1 flex-col gap-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-sm">
+        <section className="flex flex-1 flex-col gap-4 md:gap-6">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-2 text-sm min-w-0 overflow-x-auto whitespace-nowrap">
               <Link href="/" className="text-slate-500 hover:text-primary transition-colors">
                 Home
               </Link>
@@ -194,9 +194,9 @@ export default function SearchPageContent() {
               <span className="material-symbols-outlined text-xs">chevron_right</span>
               <span className="font-semibold">{type.charAt(0).toUpperCase() + type.slice(1)}s</span>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 flex-wrap">
               <span className="text-sm text-slate-500 font-medium">Sort by:</span>
-              <select className="rounded-lg border-primary/10 bg-white dark:bg-primary/5 py-1.5 pl-3 pr-8 text-sm font-semibold focus:ring-primary outline-none">
+              <select className="rounded-lg border-primary/10 bg-white dark:bg-primary/5 py-1.5 pl-3 pr-8 text-sm font-semibold focus:ring-primary outline-none w-full sm:w-auto">
                 <option>Best Value</option>
                 <option>Price (Low to High)</option>
                 <option>Star Rating</option>
@@ -205,7 +205,7 @@ export default function SearchPageContent() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-6">
+          <div className="grid grid-cols-1 gap-4 md:gap-6">
             {filteredResults.length === 0 ? (
               <div className="text-center py-20 bg-white dark:bg-slate-900 rounded-3xl border border-dashed border-slate-200">
                 <p className="text-slate-500">No matches found. Try adjusting your filters.</p>

@@ -74,13 +74,13 @@ export default function MyBookingsPage() {
   return (
     <RequireAuth>
       <div className="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen font-display">
-      <header className="sticky top-0 z-50 w-full border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-background-dark px-6 md:px-20 py-4">
-        <div className="flex items-center justify-between max-w-7xl mx-auto">
+      <header className="sticky top-0 z-50 w-full border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-background-dark px-4 sm:px-6 md:px-20 py-4">
+        <div className="flex items-center justify-between max-w-7xl mx-auto gap-3 md:gap-8">
           <Link href="/" className="flex items-center gap-2 text-primary">
             <span className="material-symbols-outlined text-3xl font-bold">flight_takeoff</span>
             <h2 className="text-xl font-black leading-tight tracking-tight text-slate-900 dark:text-white uppercase">TravelEase</h2>
           </Link>
-          <nav className="hidden md:flex items-center gap-8">
+          <nav className="hidden md:flex items-center gap-4 md:gap-8">
             <Link className="text-slate-600 dark:text-slate-400 hover:text-primary text-sm font-semibold transition-colors" href="/">Home</Link>
             <Link className="text-slate-600 dark:text-slate-400 hover:text-primary text-sm font-semibold transition-colors" href="/search">Search</Link>
             <Link className="text-primary text-sm font-bold border-b-2 border-primary pb-1" href="/profile/bookings">My Bookings</Link>
@@ -89,7 +89,7 @@ export default function MyBookingsPage() {
         </div>
       </header>
 
-      <main className="flex-1 max-w-5xl mx-auto w-full px-4 py-8">
+      <main className="flex-1 max-w-5xl mx-auto w-full px-4 sm:px-6 py-8">
         <div className="flex flex-col gap-2 mb-8">
           <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight">My Bookings</h1>
           <p className="text-slate-500 dark:text-slate-400 text-lg">Manage your upcoming journeys and travel history</p>
