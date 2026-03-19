@@ -2,6 +2,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireSupabaseUser } from '@/lib/supabase-auth';
 import { createSupabaseAdminClient, createSupabaseRouteClient } from '@/lib/supabase-route';
 
+function isMissingDeletedAtColumn(err: unknown): boolean {
+  const anyErr = err as any;
+  const msg = String(anyErr?.message || '');
+  const code = String(anyErr?.code || '');
+  return (
+    (msg.includes('deleted_at') && msg.includes('does not exist')) ||
+    code === '42703'
+  );
+}
+
 async function resolveBookingIdForUser(supabase: ReturnType<typeof createSupabaseRouteClient>, userId: string, reference: string) {
   const isBookingReference = reference.startsWith('BK-');
   const query = supabase
@@ -44,6 +54,43 @@ export async function POST(request: NextRequest) {
       .maybeSingle();
 
     if (updateErr) {
+      if (isMissingDeletedAtColumn(updateErr)) {
+        const { error: hardDelErr } = await supabase
+          .from('bookings')
+          .delete()
+          .eq('id', booking.id)
+          .eq('user_id', user.id);
+
+        if (!hardDelErr) {
+          return NextResponse.json({ ok: true, deletedWith: 'user_hard' });
+        }
+
+        let admin;
+        try {
+          admin = createSupabaseAdminClient();
+        } catch (e: any) {
+          return NextResponse.json(
+            {
+              error: 'Hard delete failed and admin client unavailable.',
+              detail: e?.message || 'Missing SUPABASE_SERVICE_ROLE_KEY',
+            },
+            { status: 500 }
+          );
+        }
+
+        const { error: adminHardDelErr } = await admin
+          .from('bookings')
+          .delete()
+          .eq('id', booking.id)
+          .eq('user_id', user.id);
+
+        if (adminHardDelErr) {
+          return NextResponse.json({ error: adminHardDelErr.message }, { status: 500 });
+        }
+
+        return NextResponse.json({ ok: true, deletedWith: 'admin_hard' });
+      }
+
       // If soft delete fails with user client, try admin client
       let admin;
       try {
