@@ -20,6 +20,7 @@ export default function BasketPage() {
   const flights = items.filter(item => item.type === 'flight');
   const hotels = items.filter(item => item.type === 'hotel');
   const activities = items.filter(item => item.type === 'activity');
+  const cars = items.filter(item => item.type === 'car');
 
   const taxesAndFees = Math.floor(totalPrice * 0.08);
   const grandTotal = totalPrice + taxesAndFees;
@@ -112,7 +113,7 @@ export default function BasketPage() {
             <div>
               <p className="font-bold">You’re browsing as a guest</p>
               <p className="text-sm text-slate-500 dark:text-slate-400">
-                Sign in to verify availability and proceed to checkout. Your basket will be saved to your account and you can view your <Link href="/profile/bookings" className="text-primary hover:underline font-medium">Bookings</Link> anytime.
+                Sign in to check out and proceed to payment. Your basket will be saved to your account and you can view your <Link href="/profile/bookings" className="text-primary hover:underline font-medium">Bookings</Link> anytime.
               </p>
             </div>
             <Link href={loginFor('/basket')} className="bg-primary hover:bg-primary/90 px-6 py-3 rounded-xl text-white font-bold text-center">
@@ -205,6 +206,48 @@ export default function BasketPage() {
                             </div>
                             <button 
                               onClick={() => removeFromBasket(flight.basketId!)}
+                              className="text-sm font-semibold text-slate-500 hover:text-red-500 flex items-center gap-1"
+                            >
+                              <span className="material-symbols-outlined text-lg">delete</span>
+                              Remove
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </section>
+              )}
+
+              {/* Cars Section */}
+              {cars.length > 0 && (
+                <section>
+                  <div className="flex items-center gap-2 mb-4">
+                    <span className="material-symbols-outlined text-primary">directions_car</span>
+                    <h2 className="text-xl font-bold">Car Rentals</h2>
+                  </div>
+                  {cars.map((car) => (
+                    <div key={car.basketId} className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm mb-4">
+                      <div className="flex flex-col md:flex-row">
+                        <div className="w-full md:w-48 h-48 md:h-auto bg-slate-200 shrink-0 relative">
+                          <Image fill alt="Car rental" className="object-cover" src={car.image} />
+                        </div>
+                        <div className="p-6 flex-1 flex flex-col md:flex-row justify-between gap-6">
+                          <div className="flex-1 space-y-2">
+                            <h3 className="text-lg font-bold">{car.title}</h3>
+                            <p className="text-sm text-slate-500 flex items-center gap-1">
+                              <span className="material-symbols-outlined text-sm">location_on</span>
+                              {car.location || 'Pick-up location'}
+                            </p>
+                            <p className="text-xs text-slate-500 uppercase tracking-wider">{car.provider}</p>
+                          </div>
+                          <div className="flex flex-col items-end justify-between border-l border-slate-100 dark:border-slate-800 pl-6">
+                            <div className="text-right">
+                              <p className="text-xs text-slate-500 uppercase font-bold tracking-wider">Subtotal</p>
+                              <p className="text-2xl font-black text-primary">₦{car.price.toLocaleString()}</p>
+                            </div>
+                            <button
+                              onClick={() => removeFromBasket(car.basketId!)}
                               className="text-sm font-semibold text-slate-500 hover:text-red-500 flex items-center gap-1"
                             >
                               <span className="material-symbols-outlined text-lg">delete</span>

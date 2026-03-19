@@ -19,6 +19,12 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<'card' | 'bank' | 'ussd'>('card');
 
+  const selectedCar = items.find((it) => it.type === 'car') || null;
+  const suggestedLocation = items.find((it) => typeof it.location === 'string' && it.location.trim())?.location;
+  const browseCarsHref = suggestedLocation
+    ? `/search?type=car&location=${encodeURIComponent(suggestedLocation)}`
+    : '/search?type=car';
+
   const loginFor = (path: string) => `/auth/login?next=${encodeURIComponent(path)}`;
 
   const taxesAndFees = Math.floor(totalPrice * 0.1);
@@ -231,11 +237,41 @@ export default function CheckoutPage() {
                   <h2 className="text-lg font-bold">Car Rental</h2>
                 </div>
                 <div className="p-6 space-y-4">
-                  <label className="flex items-center gap-3 p-4 border border-slate-200 dark:border-slate-700 rounded-lg cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                    <input type="checkbox" name="carRental" value="true" className="cursor-pointer" />
-                    <span className="font-medium">Add Car Rental <span className="text-xs text-primary">(+₦15,000)</span></span>
-                  </label>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">Rent a car at your destination. Includes insurance and unlimited mileage.</p>
+                  {selectedCar ? (
+                    <div className="rounded-lg border border-slate-200 dark:border-slate-700 p-4 bg-slate-50 dark:bg-slate-800/40">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="min-w-0">
+                          <p className="font-bold truncate">{selectedCar.title}</p>
+                          <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{selectedCar.location || 'Pick-up location'} • {selectedCar.provider}</p>
+                        </div>
+                        <div className="shrink-0 text-right">
+                          <p className="text-xs text-slate-500">Price</p>
+                          <p className="font-black text-primary">₦{Number(selectedCar.price || 0).toLocaleString()}</p>
+                        </div>
+                      </div>
+                      <div className="mt-3 flex flex-col sm:flex-row gap-3">
+                        <Link href={browseCarsHref} className="text-sm font-bold text-primary hover:underline">
+                          Change car
+                        </Link>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col gap-3">
+                      <p className="text-sm text-slate-600 dark:text-slate-300">
+                        Add a rental car for your trip by selecting one from our car rentals.
+                      </p>
+                      <Link
+                        href={browseCarsHref}
+                        className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 px-4 py-3 font-bold text-sm transition-colors"
+                      >
+                        <span className="material-symbols-outlined text-sm">search</span>
+                        Browse cars
+                      </Link>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                        Your selected car will appear in your basket and be included in your booking.
+                      </p>
+                    </div>
+                  )}
                 </div>
               </section>
 

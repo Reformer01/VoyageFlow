@@ -11,6 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { RequireAuth } from '@/components/require-auth';
 import { CancellationModal } from '@/components/cancellation-modal';
 import { BookingModificationModal } from '@/components/booking-modification-modal';
+import { DeleteConfirmationModal } from '@/components/delete-confirmation-modal';
 
 export default function BookingDetailsPage() {
   const { id } = useParams();
@@ -18,9 +19,11 @@ export default function BookingDetailsPage() {
   const auth = useAuth();
   const router = useRouter();
   const { toast } = useToast();
+  const [isCancelling, setIsCancelling] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [showModifyModal, setShowModifyModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isModifying, setIsModifying] = useState(false);
 
   const [booking, setBooking] = useState<any>(null);
@@ -71,7 +74,7 @@ export default function BookingDetailsPage() {
 
   const handleCancel = async () => {
     if (!id) return;
-    setIsDeleting(true);
+    setIsCancelling(true);
     try {
       const { data, error } = await auth.auth.getSession();
       if (error) throw error;
@@ -96,24 +99,38 @@ export default function BookingDetailsPage() {
         }
       }
       if (!res.ok) {
-        console.error(`Cancel booking failed v3 status=${res.status} body=${raw || '<empty>'}`);
+        const errorMessage = json?.error || 'Failed to cancel booking';
+        toast({
+          title: 'Cancellation Failed',
+          description: errorMessage,
+          variant: 'destructive',
+        });
         return;
       }
 
       toast({
         title: 'Booking Cancelled',
-        description: 'Your booking has been deleted.',
+        description: json?.alreadyCancelled ? 'Booking was already cancelled.' : 'Your booking has been cancelled successfully.',
       });
       setShowCancelModal(false);
-      router.push('/profile/bookings');
+      if (json?.booking) {
+        setBooking(json.booking);
+      } else {
+        setBooking((prev: any) => (prev ? { ...prev, status: 'cancelled' } : prev));
+      }
     } catch (e) {
       console.error('Cancel booking error', e);
+      toast({
+        title: 'Error',
+        description: 'An unexpected error occurred while cancelling your booking.',
+        variant: 'destructive',
+      });
     } finally {
-      setIsDeleting(false);
+      setIsCancelling(false);
     }
   };
 
-  const handleModify = async () => {
+  const handleModify = async (updates: { checkIn: string; checkOut: string; adults: number; children: number }) => {
     if (!id) return;
     setIsModifying(true);
     try {
@@ -128,39 +145,104 @@ export default function BookingDetailsPage() {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${accessToken}`,
         },
-        body: JSON.stringify({ reference: id }),
+        body: JSON.stringify({ reference: id, updates }),
       });
       const raw = await res.text();
-      const json = raw
-        ? (() => {
-            try {
-              return JSON.parse(raw);
-            } catch {
-              return { raw };
-            }
-          })()
-        : {};
+      let json: any = {};
+      if (raw) {
+        try {
+          json = JSON.parse(raw);
+        } catch {
+          json = { raw };
+        }
+      }
       if (!res.ok) {
-        console.error('Modify booking failed', json);
-        setIsModifying(false);
+        const errorMessage = json?.error || 'Failed to modify booking';
+        toast({
+          title: 'Modification Failed',
+          description: errorMessage,
+          variant: 'destructive',
+        });
         return;
       }
 
       toast({
         title: 'Booking Updated Successfully',
         description: 'Your booking has been modified. A confirmation email with your updated itinerary has been sent to your registered email address.',
-        variant: 'default',
       });
-      setIsModifying(false);
       setShowModifyModal(false);
+      if (json?.booking) {
+        setBooking(json.booking);
+      }
     } catch (e) {
       console.error('Modify booking error', e);
       toast({
         title: 'Error',
-        description: 'Failed to modify booking.',
+        description: 'An unexpected error occurred while modifying your booking.',
         variant: 'destructive',
       });
+    } finally {
       setIsModifying(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!id) return;
+    setIsDeleting(true);
+    try {
+      const { data, error } = await auth.auth.getSession();
+      if (error) throw error;
+      const accessToken = data.session?.access_token;
+      if (!accessToken) throw new Error('Missing session');
+
+      const res = await fetch('/api/bookings/delete', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ reference: id }),
+      });
+      const raw = await res.text();
+      let json: any = {};
+      if (raw) {
+        try {
+          json = JSON.parse(raw);
+        } catch {
+          json = { raw };
+        }
+      }
+      if (!res.ok) {
+        const errorMessage = json?.error || 'Failed to delete booking';
+        toast({
+          title: 'Deletion Failed',
+          description: errorMessage,
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      toast({
+        title: 'Booking Deleted',
+        description: 'Your booking has been permanently deleted.',
+      });
+      setShowDeleteModal(false);
+      
+      // Refresh the bookings list by invalidating cache
+      if (typeof window !== 'undefined' && 'localStorage' in window) {
+        localStorage.removeItem('bookings-cache');
+      }
+      
+      router.push('/profile/bookings');
+    } catch (e) {
+      console.error('Delete booking error', e);
+      toast({
+        title: 'Error',
+        description: 'An unexpected error occurred while deleting your booking.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -185,12 +267,14 @@ export default function BookingDetailsPage() {
 
   const flightItems = items?.filter(item => item.type === 'flight') || [];
   const hotelItems = items?.filter(item => item.type === 'hotel') || [];
+  const carItems = items?.filter(item => item.type === 'car') || [];
 
   // Calculate totals
   const flightTotal = flightItems.reduce((sum, item) => sum + item.price, 0);
   const hotelTotal = hotelItems.reduce((sum, item) => sum + item.price, 0);
-  const taxesAndFees = Math.floor((flightTotal + hotelTotal) * 0.08);
-  const totalPaid = flightTotal + hotelTotal + taxesAndFees;
+  const carTotal = carItems.reduce((sum, item) => sum + item.price, 0);
+  const taxesAndFees = Math.floor((flightTotal + hotelTotal + carTotal) * 0.08);
+  const totalPaid = flightTotal + hotelTotal + carTotal + taxesAndFees;
 
   return (
     <RequireAuth>
@@ -394,6 +478,12 @@ export default function BookingDetailsPage() {
                           <span className="font-medium">₦{hotelTotal.toLocaleString()}</span>
                         </div>
                       )}
+                      {carTotal > 0 && (
+                        <div className="flex justify-between text-sm">
+                          <span className="text-slate-500">Car Rental</span>
+                          <span className="font-medium">₦{carTotal.toLocaleString()}</span>
+                        </div>
+                      )}
                       <div className="flex justify-between text-sm">
                         <span className="text-slate-500">Taxes & Fees</span>
                         <span className="font-medium">₦{taxesAndFees.toLocaleString()}</span>
@@ -413,7 +503,8 @@ export default function BookingDetailsPage() {
                     <div className="space-y-3">
                       <button 
                         onClick={() => setShowModifyModal(true)}
-                        className="w-full py-3 bg-primary text-white font-bold rounded-xl hover:bg-primary/90 transition-colors flex items-center justify-center gap-2"
+                        disabled={booking.status === 'cancelled'}
+                        className="w-full py-3 bg-primary text-white font-bold rounded-xl hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         <span className="material-symbols-outlined text-sm">edit</span>
                         Modify Booking
@@ -431,6 +522,13 @@ export default function BookingDetailsPage() {
                           Cancel Booking
                         </button>
                       )}
+                      <button 
+                        onClick={() => setShowDeleteModal(true)}
+                        className="w-full py-3 text-red-600 font-bold rounded-xl hover:bg-red-100 dark:hover:bg-red-500/20 transition-colors flex items-center justify-center gap-2"
+                      >
+                        <span className="material-symbols-outlined text-sm">delete_forever</span>
+                        Delete Booking
+                      </button>
                     </div>
                   </div>
 
@@ -469,7 +567,7 @@ export default function BookingDetailsPage() {
           onCancel={() => setShowCancelModal(false)}
           bookingReference={booking.booking_reference || booking.id}
           bookingLocation={booking.location}
-          loading={isDeleting}
+          loading={isCancelling}
         />
         
         <BookingModificationModal
@@ -478,6 +576,16 @@ export default function BookingDetailsPage() {
           booking={booking}
           onSave={handleModify}
           loading={isModifying}
+        />
+        
+        <DeleteConfirmationModal
+          open={showDeleteModal}
+          onOpenChange={setShowDeleteModal}
+          onConfirm={handleDelete}
+          onCancel={() => setShowDeleteModal(false)}
+          bookingReference={booking.booking_reference || booking.id}
+          bookingLocation={booking.location}
+          loading={isDeleting}
         />
       </div>
     </RequireAuth>

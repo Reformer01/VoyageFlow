@@ -36,15 +36,26 @@ const getResults = (
         ? i % 2 === 0
           ? 'Lufthansa Economy'
           : 'Qatar Airways Business'
+        : type === 'car'
+          ? i % 2 === 0
+            ? 'Toyota Corolla (Automatic)'
+            : i % 3 === 0
+              ? 'SUV - Honda CR-V'
+              : 'Kia Rio (Compact)'
         : i % 2 === 0
           ? 'Azure Luxury Suites'
           : i % 3 === 0
             ? 'Mystique Boutique Resort'
             : 'Caldera View Hotel',
     provider: 'TravelEase Preferred',
-    price: type === 'flight' ? (i * 100 + 300) * 1500 : (i * 80 + 150) * 1500,
+    price: type === 'flight' ? (i * 100 + 300) * 1500 : type === 'car' ? (i * 25 + 40) * 1500 : (i * 80 + 150) * 1500,
     rating: i % 2 === 0 ? 5 : 4,
-    image: type === 'flight' ? `https://picsum.photos/seed/flight-${i}/800/600` : `https://picsum.photos/seed/hotel-${i}/800/600`,
+    image:
+      type === 'flight'
+        ? `https://picsum.photos/seed/flight-${i}/800/600`
+        : type === 'car'
+          ? `https://picsum.photos/seed/car-${i}/800/600`
+          : `https://picsum.photos/seed/hotel-${i}/800/600`,
     location: locations[i % locations.length].main,
     subLocation: locations[i % locations.length].sub,
     reviews: Math.floor(Math.random() * 1000) + 400,
@@ -124,6 +135,12 @@ export default function SearchPageContent() {
                 href="/search?type=flight"
               >
                 Flights
+              </Link>
+              <Link
+                className={`text-sm font-semibold transition-colors ${type === 'car' ? 'text-primary' : 'hover:text-primary text-slate-600 dark:text-slate-300'}`}
+                href="/search?type=car"
+              >
+                Cars
               </Link>
               <Link
                 className="text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-primary transition-colors"
@@ -265,22 +282,22 @@ export default function SearchPageContent() {
                         ))}
                       </div>
                     </div>
-                    <div className="mt-6 flex items-end justify-between border-t border-primary/10 pt-4">
-                      <div>
+                    <div className="mt-6 flex flex-col gap-3 border-t border-primary/10 pt-4 sm:flex-row sm:items-end sm:justify-between">
+                      <div className="min-w-0">
                         {service.leftCount && (
                           <p className="text-[10px] font-bold text-red-500 uppercase tracking-widest flex items-center gap-1">
                             <span className="material-symbols-outlined text-xs">priority_high</span>
                             Only {service.leftCount} left!
                           </p>
                         )}
-                        <div className="flex items-baseline gap-1 mt-1">
-                          <span className="text-2xl font-black text-slate-900 dark:text-white">₦{service.price.toLocaleString()}</span>
-                          <span className="text-xs text-slate-500">/ {type === 'flight' ? 'person' : 'night'}</span>
+                        <div className="mt-1 flex flex-wrap items-baseline gap-x-1 gap-y-0.5">
+                          <span className="text-xl font-black text-slate-900 dark:text-white sm:text-2xl">₦{service.price.toLocaleString()}</span>
+                          <span className="text-xs text-slate-500">/ {type === 'flight' ? 'person' : type === 'car' ? 'day' : 'night'}</span>
                         </div>
                       </div>
                       <button
                         onClick={() => handleBookNow(service)}
-                        className="rounded-xl bg-primary px-8 py-3 text-sm font-bold text-white hover:bg-primary/90 transition-all h-11"
+                        className="h-11 w-full rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white transition-all hover:bg-primary/90 sm:w-auto sm:px-8"
                       >
                         Book Now
                       </button>

@@ -14,6 +14,7 @@ export async function GET(request: NextRequest) {
       .from('bookings')
       .select('*')
       .eq('user_id', user.id)
+      .is('deleted_at', null) // Filter out soft-deleted bookings
       .order('created_at', { ascending: false });
 
     if (listErr) {

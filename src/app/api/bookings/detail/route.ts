@@ -16,12 +16,15 @@ export async function GET(request: NextRequest) {
   try {
     const supabase = createSupabaseRouteClient(accessToken);
 
-    const { data: booking, error: bErr } = await supabase
+    const isBookingReference = reference.startsWith('BK-');
+    const bookingQuery = supabase
       .from('bookings')
       .select('*')
-      .eq('user_id', user.id)
-      .eq('booking_reference', reference)
-      .single();
+      .eq('user_id', user.id);
+
+    const { data: booking, error: bErr } = isBookingReference
+      ? await bookingQuery.eq('booking_reference', reference).maybeSingle()
+      : await bookingQuery.eq('id', reference).maybeSingle();
 
     if (bErr || !booking) {
       // Most common case: no booking found for this user + reference

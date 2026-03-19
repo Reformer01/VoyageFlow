@@ -30,7 +30,7 @@ function normalizeGuestItems(raw: any): TravelService[] {
 export type TravelService = {
   id: string;
   basketId?: string;
-  type: 'flight' | 'hotel' | 'activity';
+  type: 'flight' | 'hotel' | 'activity' | 'car';
   title: string;
   provider: string;
   price: number;

@@ -21,7 +21,7 @@ export default function SupportPage() {
       <header className="sticky top-0 z-50 flex items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md px-6 py-4 lg:px-20">
         <Link href="/" className="flex items-center gap-2 text-primary">
           <span className="material-symbols-outlined text-3xl font-bold">flight_takeoff</span>
-          <h2 className="text-slate-900 dark:text-slate-100 text-xl font-black leading-tight tracking-tight uppercase">TravelEase</h2>
+          <h2 className="text-slate-900 dark:text-slate-100 text-xl font-black leading-tight tracking-tight uppercase">VoyageFlow</h2>
         </Link>
         <nav className="hidden md:flex items-center gap-8">
           <Link className="text-sm font-semibold hover:text-primary transition-colors text-slate-600 dark:text-slate-300" href="/search">Search</Link>

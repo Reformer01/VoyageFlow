@@ -2,11 +2,18 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireSupabaseUser } from '@/lib/supabase-auth';
 import { createSupabaseRouteClient } from '@/lib/supabase-route';
 
-async function resolveBookingIdForUser(supabase: ReturnType<typeof createSupabaseRouteClient>, userId: string, reference: string) {
+type ModifyUpdates = {
+  checkIn?: string;
+  checkOut?: string;
+  adults?: number;
+  children?: number;
+};
+
+async function resolveBookingForUser(supabase: ReturnType<typeof createSupabaseRouteClient>, userId: string, reference: string) {
   const isBookingReference = reference.startsWith('BK-');
   const query = supabase
     .from('bookings')
-    .select('id,status')
+    .select('id,status,booking_date,location,title')
     .eq('user_id', userId);
 
   const { data, error } = isBookingReference
@@ -25,23 +32,32 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const reference = typeof body?.reference === 'string' ? body.reference : null;
+    const updates: ModifyUpdates = (body?.updates && typeof body.updates === 'object') ? body.updates : {};
     if (!reference) {
       return NextResponse.json({ error: 'Missing reference' }, { status: 400 });
     }
 
     const supabase = createSupabaseRouteClient(accessToken);
 
-    const { booking, error: bookingErr } = await resolveBookingIdForUser(supabase, user.id, reference);
+    const { booking, error: bookingErr } = await resolveBookingForUser(supabase, user.id, reference);
     if (bookingErr) return NextResponse.json({ error: bookingErr.message }, { status: 500 });
     if (!booking) return NextResponse.json({ error: 'Booking not found' }, { status: 404 });
 
     if (booking.status === 'cancelled') {
-      return NextResponse.json({ ok: true, alreadyCancelled: true });
+      return NextResponse.json({ error: 'Cannot modify cancelled booking' }, { status: 400 });
+    }
+
+    const nextBookingDate = typeof updates.checkIn === 'string' && updates.checkIn.trim()
+      ? new Date(updates.checkIn).toISOString()
+      : null;
+
+    if (!nextBookingDate) {
+      return NextResponse.json({ error: 'Missing updates.checkIn' }, { status: 400 });
     }
 
     const { data: updated, error: updateErr } = await supabase
       .from('bookings')
-      .update({ status: 'cancelled' })
+      .update({ booking_date: nextBookingDate })
       .eq('id', booking.id)
       .eq('user_id', user.id)
       .select('*')
@@ -53,8 +69,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ ok: true, booking: updated });
   } catch (e) {
-    console.error('POST /api/bookings/cancel error', e);
+    console.error('POST /api/bookings/modify error', e);
     const message = e instanceof Error ? e.message : 'Unknown error';
-    return NextResponse.json({ error: 'Unable to cancel booking', detail: message }, { status: 500 });
+    return NextResponse.json({ error: 'Unable to modify booking', detail: message }, { status: 500 });
   }
 }

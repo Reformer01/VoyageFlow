@@ -54,15 +54,15 @@ export function ServiceCard({ service }: ServiceCardProps) {
           {service.type === 'hotel' ? `Starting at ₦${service.price.toLocaleString()}/night. Tropical paradise awaits with luxury amenities.` : `Fly to your next adventure with ${service.provider}.`}
         </p>
         
-        <div className="flex items-center justify-between">
-          <div className="flex flex-col">
-            <span className="text-primary font-black text-xl">
-              ₦{service.price.toLocaleString()} 
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
+            <span className="text-primary font-black text-lg sm:text-xl">
+              ₦{service.price.toLocaleString()}{' '}
               <span className="text-slate-400 text-xs font-normal">/{service.type === 'hotel' ? 'night' : 'person'}</span>
             </span>
           </div>
           <Button 
-            className="bg-primary/10 text-primary hover:bg-primary hover:text-white px-4 py-2 rounded-lg font-bold text-sm transition-colors border-none" 
+            className="w-full sm:w-auto bg-primary/10 text-primary hover:bg-primary hover:text-white px-4 py-2 rounded-lg font-bold text-sm transition-colors border-none" 
             onClick={handleAdd}
           >
             Book Now

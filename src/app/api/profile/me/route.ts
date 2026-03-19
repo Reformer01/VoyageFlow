@@ -32,8 +32,17 @@ export async function PUT(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const first_name = typeof body?.firstName === 'string' ? body.firstName : null;
-    const last_name = typeof body?.lastName === 'string' ? body.lastName : null;
+    const fullNameRaw = typeof body?.fullName === 'string' ? body.fullName : null;
+    const firstNameRaw = typeof body?.firstName === 'string' ? body.firstName : null;
+    const lastNameRaw = typeof body?.lastName === 'string' ? body.lastName : null;
+
+    const normalizedFullName = fullNameRaw?.trim() || null;
+    const fullNameParts = normalizedFullName ? normalizedFullName.split(/\s+/).filter(Boolean) : [];
+    const derivedFirstName = fullNameParts.length > 0 ? fullNameParts[0] : null;
+    const derivedLastName = fullNameParts.length > 1 ? fullNameParts.slice(1).join(' ') : null;
+
+    const first_name = firstNameRaw?.trim() || derivedFirstName;
+    const last_name = lastNameRaw?.trim() || derivedLastName;
     const phone_number = typeof body?.phoneNumber === 'string' ? body.phoneNumber : null;
     const email = typeof body?.email === 'string' ? body.email : user.email;
 

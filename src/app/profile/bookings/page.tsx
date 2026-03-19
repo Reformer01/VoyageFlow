@@ -126,12 +126,14 @@ export default function MyBookingsPage() {
                       className="object-cover group-hover:scale-105 transition-transform duration-500" 
                     />
                   </div>
-                  <div className="flex-1 p-6 flex flex-col justify-between">
-                    <div className="flex justify-between items-start mb-4">
-                      <div>
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-xs font-bold uppercase tracking-widest text-primary">Booking #{booking.booking_reference || booking.id}</span>
-                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
+                  <div className="flex-1 p-4 sm:p-6 flex flex-col justify-between">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-start mb-4">
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-2 mb-1 min-w-0">
+                          <span className="text-xs font-bold uppercase tracking-widest text-primary break-all">
+                            Booking #{booking.booking_reference || booking.id}
+                          </span>
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase whitespace-nowrap ${
                             booking.status === 'confirmed' 
                               ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400' 
                               : 'bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400'
@@ -139,15 +141,15 @@ export default function MyBookingsPage() {
                             {booking.status}
                           </span>
                         </div>
-                        <h4 className="text-2xl font-bold text-slate-900 dark:text-white">{booking.location}</h4>
+                        <h4 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white break-words">{booking.location}</h4>
                         <p className="text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-1">
                           <span className="material-symbols-outlined text-sm text-primary">calendar_today</span>
                           {booking.booking_date ? new Date(booking.booking_date).toLocaleDateString() : 'Date TBD'}
                         </p>
                       </div>
-                      <div className="text-right">
-                        <p className="text-sm text-slate-400">Total Price</p>
-                        <p className="text-xl font-black text-slate-900 dark:text-white">₦{Number(booking.total_amount || 0).toLocaleString()}</p>
+                      <div className="text-left sm:text-right shrink-0">
+                        <p className="text-xs sm:text-sm text-slate-400">Total Price</p>
+                        <p className="text-lg sm:text-xl font-black text-slate-900 dark:text-white break-all">₦{Number(booking.total_amount || 0).toLocaleString()}</p>
                       </div>
                     </div>
                     <div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
