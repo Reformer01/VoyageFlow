@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth, useUser } from '@/supabase';
 import { format } from 'date-fns';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { RequireAuth } from '@/components/require-auth';
@@ -31,46 +31,46 @@ export default function BookingDetailsPage() {
   const [isBookingLoading, setIsBookingLoading] = useState(false);
   const [isItemsLoading, setIsItemsLoading] = useState(false);
 
-  useEffect(() => {
-    const load = async () => {
-      if (!user || !id) return;
-      setIsBookingLoading(true);
-      setIsItemsLoading(true);
-      try {
-        const { data, error } = await auth.auth.getSession();
-        if (error) throw error;
-        const accessToken = data.session?.access_token;
-        if (!accessToken) return;
+  const reloadBooking = useCallback(async () => {
+    if (!user || !id) return;
+    setIsBookingLoading(true);
+    setIsItemsLoading(true);
+    try {
+      const { data, error } = await auth.auth.getSession();
+      if (error) throw error;
+      const accessToken = data.session?.access_token;
+      if (!accessToken) return;
 
-        const res = await fetch(`/api/bookings/detail?reference=${encodeURIComponent(id as string)}`, {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        });
-        const raw = await res.text();
-        let json: any = {};
-        if (raw) {
-          try {
-            json = JSON.parse(raw);
-          } catch {
-            json = { raw };
-          }
+      const res = await fetch(`/api/bookings/detail?reference=${encodeURIComponent(id as string)}`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      const raw = await res.text();
+      let json: any = {};
+      if (raw) {
+        try {
+          json = JSON.parse(raw);
+        } catch {
+          json = { raw };
         }
-        if (!res.ok) {
-          console.error('Failed to load booking detail', { status: res.status, body: json });
-          return;
-        }
-
-        setBooking(json.booking);
-        setItems((json.items || []).map((it: any) => it.snapshot));
-      } catch (e) {
-        console.error('Booking detail load error', e);
-      } finally {
-        setIsBookingLoading(false);
-        setIsItemsLoading(false);
       }
-    };
+      if (!res.ok) {
+        console.error('Failed to load booking detail', { status: res.status, body: json });
+        return;
+      }
 
-    load();
+      setBooking(json.booking);
+      setItems((json.items || []).map((it: any) => it.snapshot));
+    } catch (e) {
+      console.error('Booking detail load error', e);
+    } finally {
+      setIsBookingLoading(false);
+      setIsItemsLoading(false);
+    }
   }, [auth, id, user]);
+
+  useEffect(() => {
+    reloadBooking();
+  }, [reloadBooking]);
 
   const handleCancel = async () => {
     if (!id) return;
@@ -113,11 +113,7 @@ export default function BookingDetailsPage() {
         description: json?.alreadyCancelled ? 'Booking was already cancelled.' : 'Your booking has been cancelled successfully.',
       });
       setShowCancelModal(false);
-      if (json?.booking) {
-        setBooking(json.booking);
-      } else {
-        setBooking((prev: any) => (prev ? { ...prev, status: 'cancelled' } : prev));
-      }
+      await reloadBooking();
     } catch (e) {
       console.error('Cancel booking error', e);
       toast({
@@ -171,9 +167,7 @@ export default function BookingDetailsPage() {
         description: 'Your booking has been modified. A confirmation email with your updated itinerary has been sent to your registered email address.',
       });
       setShowModifyModal(false);
-      if (json?.booking) {
-        setBooking(json.booking);
-      }
+      await reloadBooking();
     } catch (e) {
       console.error('Modify booking error', e);
       toast({
@@ -275,6 +269,10 @@ export default function BookingDetailsPage() {
   const carTotal = carItems.reduce((sum, item) => sum + item.price, 0);
   const taxesAndFees = Math.floor((flightTotal + hotelTotal + carTotal) * 0.08);
   const totalPaid = flightTotal + hotelTotal + carTotal + taxesAndFees;
+
+  const isCancelled = booking?.status === 'cancelled';
+  const isDeleted = booking?.status === 'deleted';
+  const disableActions = isCancelled || isDeleted;
 
   return (
     <RequireAuth>
@@ -503,7 +501,7 @@ export default function BookingDetailsPage() {
                     <div className="space-y-3">
                       <button 
                         onClick={() => setShowModifyModal(true)}
-                        disabled={booking.status === 'cancelled'}
+                        disabled={disableActions}
                         className="w-full py-3 bg-primary text-white font-bold rounded-xl hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         <span className="material-symbols-outlined text-sm">edit</span>
@@ -513,7 +511,7 @@ export default function BookingDetailsPage() {
                         <span className="material-symbols-outlined text-sm">receipt</span>
                         Download Invoice
                       </button>
-                      {booking.status !== 'cancelled' && (
+                      {!disableActions && (
                         <button 
                           onClick={() => setShowCancelModal(true)}
                           className="w-full py-3 text-red-500 font-bold rounded-xl hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors flex items-center justify-center gap-2"
@@ -522,13 +520,15 @@ export default function BookingDetailsPage() {
                           Cancel Booking
                         </button>
                       )}
-                      <button 
-                        onClick={() => setShowDeleteModal(true)}
-                        className="w-full py-3 text-red-600 font-bold rounded-xl hover:bg-red-100 dark:hover:bg-red-500/20 transition-colors flex items-center justify-center gap-2"
-                      >
-                        <span className="material-symbols-outlined text-sm">delete_forever</span>
-                        Delete Booking
-                      </button>
+                      {!isDeleted && (
+                        <button 
+                          onClick={() => setShowDeleteModal(true)}
+                          className="w-full py-3 text-red-600 font-bold rounded-xl hover:bg-red-100 dark:hover:bg-red-500/20 transition-colors flex items-center justify-center gap-2"
+                        >
+                          <span className="material-symbols-outlined text-sm">delete_forever</span>
+                          Delete Booking
+                        </button>
+                      )}
                     </div>
                   </div>
 

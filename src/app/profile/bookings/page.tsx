@@ -3,7 +3,7 @@
 
 import { useAuth, useUser } from '@/supabase';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { RequireAuth } from '@/components/require-auth';
@@ -25,41 +25,53 @@ export default function MyBookingsPage() {
     }
   };
 
-  useEffect(() => {
-    const load = async () => {
-      if (!user) return;
-      setIsBookingsLoading(true);
-      try {
-        const { data, error } = await auth.auth.getSession();
-        if (error) throw error;
-        const accessToken = data.session?.access_token;
-        if (!accessToken) return;
+  const loadBookings = useCallback(async () => {
+    if (!user) return;
+    setIsBookingsLoading(true);
+    try {
+      const { data, error } = await auth.auth.getSession();
+      if (error) throw error;
+      const accessToken = data.session?.access_token;
+      if (!accessToken) return;
 
-        const res = await fetch('/api/bookings/list', {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        });
-        const json = await safeReadJson(res);
+      const res = await fetch('/api/bookings/list', {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      const json = await safeReadJson(res);
 
-        if (res.status === 401) {
-          router.push('/auth/login');
-          return;
-        }
-
-        if (!res.ok) {
-          console.error('Failed to load bookings', { status: res.status, body: json });
-          return;
-        }
-
-        setBookings((json as any)?.bookings || []);
-      } catch (e) {
-        console.error('Bookings load error', e);
-      } finally {
-        setIsBookingsLoading(false);
+      if (res.status === 401) {
+        router.push('/auth/login');
+        return;
       }
+
+      if (!res.ok) {
+        console.error('Failed to load bookings', { status: res.status, body: json });
+        return;
+      }
+
+      setBookings((json as any)?.bookings || []);
+    } catch (e) {
+      console.error('Bookings load error', e);
+    } finally {
+      setIsBookingsLoading(false);
+    }
+  }, [auth, router, safeReadJson, user]);
+
+  useEffect(() => {
+    loadBookings();
+
+    const onFocus = () => loadBookings();
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible') loadBookings();
     };
 
-    load();
-  }, [auth, user]);
+    window.addEventListener('focus', onFocus);
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => {
+      window.removeEventListener('focus', onFocus);
+      document.removeEventListener('visibilitychange', onVisibility);
+    };
+  }, [loadBookings]);
 
   if (isUserLoading || isBookingsLoading) {
     return (
