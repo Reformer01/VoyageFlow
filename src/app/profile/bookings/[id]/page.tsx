@@ -443,6 +443,76 @@ export default function BookingDetailsPage() {
                     </section>
                   )}
 
+                  {/* Car Rental */}
+                  {carItems.length > 0 && (
+                    <section>
+                      <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                        <span className="material-symbols-outlined text-primary">directions_car</span>
+                        Car Rental
+                      </h3>
+                      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col md:flex-row">
+                        <div className="md:w-1/3 aspect-video md:aspect-auto relative">
+                          <Image 
+                            src={carItems[0].image || "https://picsum.photos/seed/car/400/300"} 
+                            alt={carItems[0].title || "Car"}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                        <div className="p-6 md:w-2/3">
+                          <div className="flex justify-between items-start mb-2">
+                            <h4 className="font-bold text-lg">{carItems[0].title || 'Rental Car'}</h4>
+                            <div className="flex text-primary">
+                              {[...Array(5)].map((_, i) => (
+                                <span key={i} className="material-symbols-outlined text-sm">star</span>
+                              ))}
+                            </div>
+                          </div>
+                          <p className="text-sm text-slate-500 mb-4">{booking.location || 'Pick-up location'} • {carItems[0].provider || 'Provider'}</p>
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-2 text-sm">
+                              <span className="material-symbols-outlined text-slate-400 text-sm">event_seat</span>
+                              <span>Standard Sedan • Automatic</span>
+                            </div>
+                            <div className="flex items-center gap-2 text-sm">
+                              <span className="material-symbols-outlined text-slate-400 text-sm">local_gas_station</span>
+                              <span>Full-to-full fuel policy</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </section>
+                  )}
+
+                  {/* Activities */}
+                  {items && items.filter(item => item.type === 'activity').length > 0 && (
+                    <section>
+                      <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                        <span className="material-symbols-outlined text-primary">hiking</span>
+                        Activities
+                      </h3>
+                      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6">
+                        {items.filter(item => item.type === 'activity').map((activity, idx) => (
+                          <div key={idx} className="flex items-center gap-4 pb-4 mb-4 border-b border-slate-100 dark:border-slate-800 last:border-0 last:pb-0 last:mb-0">
+                            <div className="w-16 h-16 rounded-lg overflow-hidden relative shrink-0">
+                              <Image 
+                                src={activity.image || "https://picsum.photos/seed/activity/100/100"} 
+                                alt={activity.title || "Activity"}
+                                fill
+                                className="object-cover"
+                              />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="font-bold">{activity.title || 'Activity'}</h4>
+                              <p className="text-sm text-slate-500">{activity.provider || 'Provider'}</p>
+                            </div>
+                            <p className="font-bold text-primary">₦{Number(activity.price || 0).toLocaleString()}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </section>
+                  )}
+
                   {/* Traveler Information */}
                   <section>
                     <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
