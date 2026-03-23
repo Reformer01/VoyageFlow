@@ -1,10 +1,12 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { validateAndRefreshSessionCached, fetchWithRetry, handleSessionExpired, DateString } from '@/lib/session-utils';
 import { useAuth, useUser } from '@/supabase';
 
 // Basket context for managing travel services
+
+// Date type definition
+export type DateString = string; // ISO 8601 date string format
 
 const GUEST_BASKET_KEY = 'travelease_guest_basket_v1';
 
